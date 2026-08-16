@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}promo_draw{% endblock %}</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 480px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+      color: #1a1a1a;
+    }
+    h1 { font-size: 1.4rem; }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      box-sizing: border-box;
+    }
+    .checkbox-field { display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; }
+    .checkbox-field label { margin-top: 0; font-weight: normal; }
+    .errors { color: #b00020; font-size: 0.9rem; margin: 0.25rem 0 0; padding-left: 1rem; }
+    .messages { list-style: none; padding: 0; }
+    .messages li { padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; }
+    .messages .success { background: #e6f4ea; color: #1e4620; }
+    .messages .error { background: #fbe7e9; color: #8a1c22; }
+    button { margin-top: 1.5rem; padding: 0.6rem 1.2rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  {% block content %}{% endblock %}
+</body>
+</html>
