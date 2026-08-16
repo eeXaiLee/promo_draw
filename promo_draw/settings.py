@@ -28,10 +28,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "accounts",
-    "promocodes",
-    "giveaway",
-    "analytics",
+    "apps.accounts",
+    "apps.promocodes",
+    "apps.giveaway",
+    "apps.analytics",
 ]
 
 MIDDLEWARE = [
