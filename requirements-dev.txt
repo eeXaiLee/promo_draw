@@ -1,0 +1,11 @@
+-r requirements.txt
+
+ruff==0.16.2
+mypy==2.3.0
+django-stubs==6.0.9
+
+flake8==7.3.0
+Flake8-pyproject==1.2.4
+
+pytest==9.1.1
+pytest-django==4.14.0

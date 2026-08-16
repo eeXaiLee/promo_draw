@@ -1,0 +1,27 @@
+[tool.ruff]
+line-length = 80
+target-version = "py312"
+extend-exclude = ["*/migrations/*", "venv"]
+
+[tool.ruff.lint]
+# E/W — pycodestyle, F — pyflakes, I — сортировка импортов (замена isort).
+select = ["E", "F", "W", "I"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+ignore_missing_imports = true
+exclude = ["migrations/"]
+
+[tool.django-stubs]
+django_settings_module = "promo_draw.settings"
+
+[tool.flake8]
+max-line-length = 80
+extend-ignore = ["E203"]  # пробел перед ":" в срезах — стиль Black/ruff format
+exclude = ["migrations", "venv"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "promo_draw.settings"
