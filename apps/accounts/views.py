@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -53,3 +54,8 @@ def confirm_email(
         "accounts/confirm_email_result.html",
         {"confirmed": confirmed},
     )
+
+
+@login_required
+def dashboard(request: HttpRequest) -> HttpResponse:
+    return render(request, "accounts/dashboard.html")

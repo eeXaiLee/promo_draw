@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Вход — promo_draw{% endblock %}
+
+{% block content %}
+  <h1>Вход</h1>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <ul class="errors">
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <label for="{{ form.username.id_for_label }}">Email</label>
+    {{ form.username }}
+    {% if form.username.errors %}
+      <ul class="errors">
+        {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <label for="{{ form.password.id_for_label }}">Пароль</label>
+    {{ form.password }}
+    {% if form.password.errors %}
+      <ul class="errors">
+        {% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <button type="submit">Войти</button>
+  </form>
+{% endblock %}
