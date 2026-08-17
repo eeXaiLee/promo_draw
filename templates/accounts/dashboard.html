@@ -15,6 +15,7 @@
       </li>
     </ul>
   {% else %}
+    <p><a href="{% url 'promocodes:redeem' %}">Ввести промокод</a></p>
     <p><a href="{% url 'accounts:profile' %}">Мои данные</a></p>
   {% endif %}
 
