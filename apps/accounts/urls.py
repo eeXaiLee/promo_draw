@@ -66,5 +66,6 @@ urlpatterns = [
         ),
         name="password_change_done",
     ),
+    path("profile/", views.ProfileUpdateView.as_view(), name="profile"),
     path("", views.dashboard, name="dashboard"),
 ]

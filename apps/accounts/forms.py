@@ -85,3 +85,48 @@ class PasswordResetRequestForm(PasswordResetForm):
     ) -> None:
         for user in self.get_users(self.cleaned_data["email"]):
             send_password_reset_email.delay(user.pk)
+
+
+class ProfileForm(forms.ModelForm):
+    """Личные данные: обязательны для ввода промокода (кроме отчества)."""
+
+    no_patronymic = forms.BooleanField(label="Нет отчества", required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            "last_name",
+            "first_name",
+            "patronymic",
+            "birth_date",
+            "phone",
+        )
+        labels = {
+            "last_name": "Фамилия",
+            "first_name": "Имя",
+            "patronymic": "Отчество",
+            "birth_date": "Дата рождения",
+            "phone": "Телефон",
+        }
+        widgets = {"birth_date": forms.DateInput(attrs={"type": "date"})}
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["patronymic"].required = False
+        had_no_patronymic = (
+            self.instance.pk
+            and self.instance.first_name
+            and not self.instance.patronymic
+        )
+        if had_no_patronymic:
+            self.fields["no_patronymic"].initial = True
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean() or {}
+        if cleaned_data.get("no_patronymic"):
+            cleaned_data["patronymic"] = ""
+        elif not cleaned_data.get("patronymic"):
+            self.add_error(
+                "patronymic", "Укажите отчество или отметьте «нет отчества»."
+            )
+        return cleaned_data

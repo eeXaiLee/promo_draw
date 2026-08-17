@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 
-from .forms import RegistrationForm
+from .forms import ProfileForm, RegistrationForm
 from .models import User
 from .tasks import send_confirmation_email
 from .tokens import email_confirmation_token
@@ -59,3 +62,20 @@ def confirm_email(
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
     return render(request, "accounts/dashboard.html")
+
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    """Личные данные пользователя — обязательны для ввода промокода."""
+
+    model = User
+    form_class = ProfileForm
+    template_name = "accounts/profile_form.html"
+    success_url = reverse_lazy("accounts:dashboard")
+
+    def get_object(self, queryset: QuerySet[User] | None = None) -> User:
+        assert isinstance(self.request.user, User)
+        return self.request.user
+
+    def form_valid(self, form: ProfileForm) -> HttpResponse:
+        messages.success(self.request, "Профиль сохранён.")
+        return super().form_valid(form)

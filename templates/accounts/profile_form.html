@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Мои данные — promo_draw{% endblock %}
+
+{% block content %}
+  <h1>Мои данные</h1>
+  <p>Нужны, чтобы можно было ввести промокод.</p>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <ul class="errors">
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
+    {{ form.last_name }}
+    {% if form.last_name.errors %}
+      <ul class="errors">
+        {% for error in form.last_name.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <label for="{{ form.first_name.id_for_label }}">Имя</label>
+    {{ form.first_name }}
+    {% if form.first_name.errors %}
+      <ul class="errors">
+        {% for error in form.first_name.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <label for="{{ form.patronymic.id_for_label }}">Отчество</label>
+    {{ form.patronymic }}
+    <div class="checkbox-field">
+      {{ form.no_patronymic }}
+      <label for="{{ form.no_patronymic.id_for_label }}">
+        {{ form.no_patronymic.label }}
+      </label>
+    </div>
+    {% if form.patronymic.errors %}
+      <ul class="errors">
+        {% for error in form.patronymic.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <label for="{{ form.birth_date.id_for_label }}">Дата рождения</label>
+    {{ form.birth_date }}
+    {% if form.birth_date.errors %}
+      <ul class="errors">
+        {% for error in form.birth_date.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <label for="{{ form.phone.id_for_label }}">Телефон</label>
+    {{ form.phone }}
+    {% if form.phone.errors %}
+      <ul class="errors">
+        {% for error in form.phone.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <button type="submit">Сохранить</button>
+  </form>
+{% endblock %}

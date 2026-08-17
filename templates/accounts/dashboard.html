@@ -6,6 +6,18 @@
   <h1>Личный кабинет</h1>
   <p>Вы вошли как {{ user.email }}.</p>
 
+  {% if not user.profile_is_complete %}
+    <ul class="messages">
+      <li class="error">
+        Чтобы ввести промокод, сначала заполните профиль — имя, фамилию,
+        дату рождения и телефон.
+        <a href="{% url 'accounts:profile' %}">Заполнить профиль</a>
+      </li>
+    </ul>
+  {% else %}
+    <p><a href="{% url 'accounts:profile' %}">Мои данные</a></p>
+  {% endif %}
+
   <p><a href="{% url 'accounts:password_change' %}">Сменить пароль</a></p>
 
   <form method="post" action="{% url 'accounts:logout' %}">
