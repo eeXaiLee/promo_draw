@@ -6,6 +6,8 @@
   <h1>Личный кабинет</h1>
   <p>Вы вошли как {{ user.email }}.</p>
 
+  <p><a href="{% url 'accounts:password_change' %}">Сменить пароль</a></p>
+
   <form method="post" action="{% url 'accounts:logout' %}">
     {% csrf_token %}
     <button type="submit">Выйти</button>
