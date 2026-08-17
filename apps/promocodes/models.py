@@ -41,7 +41,6 @@ class PromoRedemptionAttempt(models.Model):
         NOT_FOUND = "not_found", "Код не найден"
         ALREADY_USED = "already_used", "Код уже использован"
         BANNED = "banned", "Временная блокировка"
-        RATE_LIMITED = "rate_limited", "Слишком много попыток"
         PROFILE_INCOMPLETE = "profile_incomplete", "Не заполнен профиль"
 
     user = models.ForeignKey(

@@ -8,6 +8,7 @@ from django.utils import timezone
 from apps.accounts.models import User
 
 from .models import PromoCode, PromoRedemptionAttempt
+from .rate_limit import get_ban_message, register_failed_attempt
 
 FailureReason = PromoRedemptionAttempt.FailureReason
 
@@ -33,8 +34,14 @@ class RedemptionResult:
 
 
 def redeem_code(user: User, code_input: str) -> RedemptionResult:
-    """Погашает промокод: проверка профиля, поиска кода и использования."""
+    """Погашает промокод: бан, профиль, поиск кода и использование."""
     code_input = code_input.strip().upper()
+
+    ban_message = get_ban_message(user.pk)
+    if ban_message is not None:
+        return _fail(
+            user, code_input, FailureReason.BANNED, message=ban_message
+        )
 
     if not user.profile_is_complete:
         return _fail(user, code_input, FailureReason.PROFILE_INCOMPLETE)
@@ -46,9 +53,11 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
             .first()
         )
         if promo_code is None:
+            register_failed_attempt(user.pk)
             return _fail(user, code_input, FailureReason.NOT_FOUND)
 
         if promo_code.used_by_id is not None:
+            register_failed_attempt(user.pk)
             return _fail(
                 user, code_input, FailureReason.ALREADY_USED, promo_code
             )
@@ -72,6 +81,7 @@ def _fail(
     code_input: str,
     reason: FailureReason,
     promo_code: PromoCode | None = None,
+    message: str | None = None,
 ) -> RedemptionResult:
     PromoRedemptionAttempt.objects.create(
         user=user,
@@ -81,7 +91,7 @@ def _fail(
     )
     return RedemptionResult(
         success=False,
-        message=FAILURE_MESSAGES[reason],
+        message=message or FAILURE_MESSAGES[reason],
         failure_reason=reason,
         promo_code=promo_code,
     )
