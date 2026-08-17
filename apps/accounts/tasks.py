@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from celery import shared_task
 from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
@@ -28,6 +29,31 @@ def send_confirmation_email(user_id: int) -> None:
     )
     send_mail(
         subject="Подтверждение регистрации — promo_draw",
+        message=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+    )
+
+
+@shared_task
+def send_password_reset_email(user_id: int) -> None:
+    """Отправляет письмо со ссылкой сброса пароля."""
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    reset_url = (
+        f"{settings.SITE_URL}/accounts/reset-password/confirm/{uid}/{token}/"
+    )
+
+    body = render_to_string(
+        "accounts/emails/password_reset.txt", {"reset_url": reset_url}
+    )
+    send_mail(
+        subject="Сброс пароля — promo_draw",
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
