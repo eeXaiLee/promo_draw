@@ -32,3 +32,34 @@ class PromoCode(models.Model):
 
     def __str__(self) -> str:
         return self.code
+
+
+class PromoRedemptionAttempt(models.Model):
+    """Лог каждой попытки ввода промокода — для аналитики и аудита."""
+
+    class FailureReason(models.TextChoices):
+        NOT_FOUND = "not_found", "Код не найден"
+        ALREADY_USED = "already_used", "Код уже использован"
+        BANNED = "banned", "Временная блокировка"
+        RATE_LIMITED = "rate_limited", "Слишком много попыток"
+        PROFILE_INCOMPLETE = "profile_incomplete", "Не заполнен профиль"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="promo_attempts",
+    )
+    code_input = models.CharField(max_length=8)
+    success = models.BooleanField(default=False)
+    failure_reason = models.CharField(
+        max_length=20, choices=FailureReason.choices, blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "попытка ввода промокода"
+        verbose_name_plural = "попытки ввода промокода"
+
+    def __str__(self) -> str:
+        status = "успех" if self.success else self.failure_reason
+        return f"{self.user_id} — {self.code_input} ({status})"
