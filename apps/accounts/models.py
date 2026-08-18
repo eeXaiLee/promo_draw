@@ -78,6 +78,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.first_name or self.email
 
     @property
+    def initials_name(self) -> str:
+        """Фамилия И.О. — сокращённое имя для публичных страниц."""
+        initials = "".join(
+            f"{part[0]}." for part in (self.first_name, self.patronymic) if part
+        )
+        return f"{self.last_name} {initials}".strip() or self.email
+
+    @property
     def profile_is_complete(self) -> bool:
         """Заполнены ли обязательные поля профиля для ввода промокода."""
         return bool(

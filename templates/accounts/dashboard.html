@@ -19,6 +19,7 @@
     <p><a href="{% url 'accounts:profile' %}">Мои данные</a></p>
   {% endif %}
 
+  <p><a href="{% url 'giveaway:winners' %}">Победители розыгрыша</a></p>
   <p><a href="{% url 'accounts:password_change' %}">Сменить пароль</a></p>
 
   <form method="post" action="{% url 'accounts:logout' %}">

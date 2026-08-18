@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Победители — promo_draw{% endblock %}
+
+{% block content %}
+  <h1>Победители розыгрыша</h1>
+
+  {% if not draws %}
+    <p>Пока нет ни одного подведённого дня.</p>
+  {% else %}
+    <nav class="tabs">
+      {% for draw in draws %}
+        <a
+          href="?date={{ draw.date|date:'Y-m-d' }}"
+          class="{% if draw.pk == selected_draw.pk %}active{% endif %}"
+        >{{ draw.date|date:"d.m.Y" }}</a>
+      {% endfor %}
+    </nav>
+
+    {% if winners %}
+      <ul class="winners">
+        {% for winner in winners %}
+          <li>{{ winner.user.initials_name }} — {{ winner.prize.title }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>В этот день участников не было — победителей нет.</p>
+    {% endif %}
+  {% endif %}
+{% endblock %}
