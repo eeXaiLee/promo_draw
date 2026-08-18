@@ -21,7 +21,9 @@ def moscow_day_bounds(
     return start, start + datetime.timedelta(days=1)
 
 
-def finalize_draw(draw: DailyDraw) -> list[Winner]:
+def finalize_draw(
+    draw: DailyDraw, determined_manually: bool = False
+) -> list[Winner]:
     """Определяет победителей дня.
 
     Если розыгрыш уже финализирован, ничего не делает.
@@ -65,6 +67,7 @@ def finalize_draw(draw: DailyDraw) -> list[Winner]:
                     prize=prizes[len(winners)],
                     user_id=user_id,
                     promo_code=promo_code,
+                    determined_manually=determined_manually,
                 )
             )
 
