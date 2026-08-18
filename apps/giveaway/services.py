@@ -1,12 +1,24 @@
 from __future__ import annotations
 
+import datetime
 import random
+from zoneinfo import ZoneInfo
 
 from django.db import transaction
 
 from apps.promocodes.models import PromoCode
 
 from .models import DRAW_PRIZE_COUNT, DailyDraw, Prize, Winner
+
+MOSCOW_TZ = ZoneInfo("Europe/Moscow")
+
+
+def moscow_day_bounds(
+    day: datetime.date,
+) -> tuple[datetime.datetime, datetime.datetime]:
+    """Границы календарных суток `day` по московскому времени."""
+    start = datetime.datetime.combine(day, datetime.time.min, MOSCOW_TZ)
+    return start, start + datetime.timedelta(days=1)
 
 
 def finalize_draw(draw: DailyDraw) -> list[Winner]:
@@ -23,9 +35,12 @@ def finalize_draw(draw: DailyDraw) -> list[Winner]:
         if draw.is_finalized:
             return []
 
+        day_start, day_end = moscow_day_bounds(draw.date)
         tickets = list(
             PromoCode.objects.filter(
-                used_by__isnull=False, used_at__date=draw.date
+                used_by__isnull=False,
+                used_at__gte=day_start,
+                used_at__lt=day_end,
             ).exclude(used_by__giveaway_win__isnull=False)
         )
         random.shuffle(tickets)
