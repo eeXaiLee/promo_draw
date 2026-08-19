@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
+from apps.analytics.services import record_daily_stats
+
 from .models import DailyDraw, Prize, Winner
 from .services import finalize_draw
 
@@ -36,6 +38,7 @@ class DailyDrawAdmin(admin.ModelAdmin):
         for draw in queryset:
             winners = finalize_draw(draw, determined_manually=True)
             total_winners += len(winners)
+            record_daily_stats(draw.date)
         self.message_user(request, f"Определено победителей: {total_winners}")
 
 
