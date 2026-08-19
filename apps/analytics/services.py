@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 import datetime
+from collections.abc import Iterable
+
+import openpyxl
+from openpyxl.workbook import Workbook
 
 from apps.accounts.models import User
 from apps.giveaway.services import moscow_day_bounds
@@ -32,3 +36,23 @@ def record_daily_stats(day: datetime.date) -> DailyStats:
         },
     )
     return stats
+
+
+def build_daily_stats_workbook(stats: Iterable[DailyStats]) -> Workbook:
+    """Собирает xlsx-книгу с дневной статистикой для выгрузки из админки."""
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Статистика"
+    sheet.append(
+        ["Дата", "Регистраций", "Успешных попыток", "Неуспешных попыток"]
+    )
+    for row in stats:
+        sheet.append(
+            [
+                row.date,
+                row.users_registered,
+                row.promo_success,
+                row.promo_failed,
+            ]
+        )
+    return workbook
