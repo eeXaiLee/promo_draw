@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import openpyxl
+from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.utils import timezone
 
@@ -77,6 +79,36 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
         message="Промокод принят! Вы участвуете в розыгрыше.",
         promo_code=promo_code,
     )
+
+
+@dataclass
+class ImportResult:
+    """Итог загрузки промокодов из xlsx — для отчёта в админке."""
+
+    total_rows: int
+    added: int
+
+
+def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
+    """Читает первый столбец xlsx-файла и добавляет новые промокоды."""
+    workbook = openpyxl.load_workbook(file, read_only=True)
+    sheet = workbook.active
+
+    codes = []
+    for row in sheet.iter_rows(values_only=True):
+        if not row or row[0] is None:
+            continue
+        code = str(row[0]).strip().upper()
+        if code:
+            codes.append(code)
+
+    before = PromoCode.objects.count()
+    PromoCode.objects.bulk_create(
+        [PromoCode(code=code) for code in codes], ignore_conflicts=True
+    )
+    added = PromoCode.objects.count() - before
+
+    return ImportResult(total_rows=len(codes), added=added)
 
 
 def _fail(
