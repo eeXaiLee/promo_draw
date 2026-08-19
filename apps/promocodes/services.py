@@ -3,13 +3,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import openpyxl
+from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.db import transaction
 from django.utils import timezone
 
 from apps.accounts.models import User
 
-from .models import PromoCode, PromoRedemptionAttempt
+from .models import PromoCode, PromoRedemptionAttempt, code_validator
 from .rate_limit import get_ban_message, register_failed_attempt
 from .tasks import send_promo_registered_email
 
@@ -87,28 +88,65 @@ class ImportResult:
 
     total_rows: int
     added: int
+    rejected_invalid_format: int
+    rejected_duplicate: int
 
 
 def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
-    """Читает первый столбец xlsx-файла и добавляет новые промокоды."""
+    """Читает первый столбец xlsx-файла и добавляет новые промокоды.
+
+    Отбрасывает строки неверного формата и дубли — как внутри самого
+    файла, так и уже существующие в базе.
+    """
     workbook = openpyxl.load_workbook(file, read_only=True)
     sheet = workbook.active
 
-    codes = []
+    raw_values = []
     for row in sheet.iter_rows(values_only=True):
         if not row or row[0] is None:
             continue
-        code = str(row[0]).strip().upper()
-        if code:
-            codes.append(code)
+        value = str(row[0]).strip().upper()
+        if value:
+            raw_values.append(value)
+
+    valid_codes = []
+    rejected_invalid_format = 0
+    for value in raw_values:
+        try:
+            code_validator(value)
+        except ValidationError:
+            rejected_invalid_format += 1
+        else:
+            valid_codes.append(value)
+
+    existing = set(
+        PromoCode.objects.filter(code__in=valid_codes).values_list(
+            "code", flat=True
+        )
+    )
+
+    seen: set[str] = set()
+    new_codes = []
+    rejected_duplicate = 0
+    for code in valid_codes:
+        if code in existing or code in seen:
+            rejected_duplicate += 1
+            continue
+        seen.add(code)
+        new_codes.append(code)
 
     before = PromoCode.objects.count()
     PromoCode.objects.bulk_create(
-        [PromoCode(code=code) for code in codes], ignore_conflicts=True
+        [PromoCode(code=code) for code in new_codes], ignore_conflicts=True
     )
     added = PromoCode.objects.count() - before
 
-    return ImportResult(total_rows=len(codes), added=added)
+    return ImportResult(
+        total_rows=len(raw_values),
+        added=added,
+        rejected_invalid_format=rejected_invalid_format,
+        rejected_duplicate=rejected_duplicate,
+    )
 
 
 def _fail(

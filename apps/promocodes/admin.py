@@ -36,7 +36,10 @@ class PromoCodeAdmin(admin.ModelAdmin):
                 messages.success(
                     request,
                     f"Обработано строк: {result.total_rows}. "
-                    f"Добавлено новых кодов: {result.added}.",
+                    f"Добавлено: {result.added}. "
+                    f"Отклонено (неверный формат): "
+                    f"{result.rejected_invalid_format}. "
+                    f"Отклонено (дубликат): {result.rejected_duplicate}.",
                 )
                 return redirect("admin:promocodes_promocode_changelist")
         else:
