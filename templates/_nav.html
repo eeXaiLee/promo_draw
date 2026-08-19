@@ -1,0 +1,16 @@
+{% if user.is_authenticated %}
+  <nav class="nav">
+    <a href="{% url 'accounts:dashboard' %}">Личный кабинет</a>
+    <a href="{% url 'promocodes:redeem' %}">Ввести промокод</a>
+    <a href="{% url 'giveaway:winners' %}">Победители</a>
+    <form method="post" action="{% url 'accounts:logout' %}">
+      {% csrf_token %}
+      <button type="submit">Выйти</button>
+    </form>
+  </nav>
+{% else %}
+  <nav class="nav">
+    <a href="{% url 'accounts:login' %}">Войти</a>
+    <a href="{% url 'accounts:register' %}">Регистрация</a>
+  </nav>
+{% endif %}

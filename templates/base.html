@@ -32,9 +32,31 @@
     .tabs a { padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; color: #1a1a1a; background: #f0f0f0; }
     .tabs a.active { background: #1a1a1a; color: #fff; }
     .winners { padding-left: 1.2rem; }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .nav a { color: #1a1a1a; text-decoration: none; }
+    .nav a:hover { text-decoration: underline; }
+    .nav form { margin: 0; }
+    .nav button {
+      margin: 0;
+      padding: 0;
+      border: none;
+      background: none;
+      color: #1a1a1a;
+      text-decoration: underline;
+      cursor: pointer;
+      font: inherit;
+    }
   </style>
 </head>
 <body>
+  {% include "_nav.html" %}
   {% if messages %}
     <ul class="messages">
       {% for message in messages %}
