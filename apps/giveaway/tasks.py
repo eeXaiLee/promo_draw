@@ -8,17 +8,20 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils import timezone
 
+from apps.analytics.services import record_daily_stats
+
 from .models import DailyDraw, Winner
 from .services import MOSCOW_TZ, finalize_draw
 
 
 @shared_task
 def finalize_yesterday_draw() -> None:
-    """Финализирует розыгрыш за только что закончившиеся сутки по МСК."""
+    """Финализирует розыгрыш и считает статистику за прошедшие сутки по МСК."""
     today_msk = timezone.now().astimezone(MOSCOW_TZ).date()
     yesterday = today_msk - datetime.timedelta(days=1)
     draw, _ = DailyDraw.objects.get_or_create(date=yesterday)
     finalize_draw(draw)
+    record_daily_stats(yesterday)
 
 
 @shared_task
