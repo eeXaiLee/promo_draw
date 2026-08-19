@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import datetime
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from .models import DailyDraw, Winner
 
 
+@login_required
 def winners_page(request: HttpRequest) -> HttpResponse:
-    """Публичная страница победителей по дням."""
+    """Страница победителей по дням — доступна только вошедшим."""
     draws = DailyDraw.objects.filter(is_finalized=True).order_by("-date")
 
     selected_draw = None

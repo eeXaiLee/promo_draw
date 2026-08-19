@@ -78,12 +78,21 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.first_name or self.email
 
     @property
-    def initials_name(self) -> str:
-        """Фамилия И.О. — сокращённое имя для публичных страниц."""
-        initials = "".join(
-            f"{part[0]}." for part in (self.first_name, self.patronymic) if part
-        )
-        return f"{self.last_name} {initials}".strip() or self.email
+    def public_display_name(self) -> str:
+        """Имя Ф. — сокращённое имя для публичных страниц."""
+        last_initial = f"{self.last_name[0]}." if self.last_name else ""
+        return f"{self.first_name} {last_initial}".strip() or self.email
+
+    @property
+    def masked_phone(self) -> str:
+        """Телефон вида +7 *** *** ХХ ХХ — видны только последние 4 цифры."""
+        digits = "".join(ch for ch in self.phone if ch.isdigit())
+        if len(digits) < 4:
+            return ""
+        if digits[0] == "8":
+            digits = "7" + digits[1:]
+        last_four = digits[-4:]
+        return f"+{digits[0]} *** *** {last_four[:2]} {last_four[2:]}"
 
     @property
     def profile_is_complete(self) -> bool:

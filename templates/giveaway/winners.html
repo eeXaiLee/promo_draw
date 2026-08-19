@@ -20,7 +20,10 @@
     {% if winners %}
       <ul class="winners">
         {% for winner in winners %}
-          <li>{{ winner.user.initials_name }} — {{ winner.prize.title }}</li>
+          <li>
+            {{ winner.user.public_display_name }}
+            ({{ winner.user.masked_phone }}) — {{ winner.prize.title }}
+          </li>
         {% endfor %}
       </ul>
     {% else %}
