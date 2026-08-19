@@ -9,6 +9,7 @@ from apps.accounts.models import User
 
 from .models import PromoCode, PromoRedemptionAttempt
 from .rate_limit import get_ban_message, register_failed_attempt
+from .tasks import send_promo_registered_email
 
 FailureReason = PromoRedemptionAttempt.FailureReason
 
@@ -68,6 +69,8 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
         PromoRedemptionAttempt.objects.create(
             user=user, code_input=code_input, success=True
         )
+
+    send_promo_registered_email.delay(promo_code.pk)
 
     return RedemptionResult(
         success=True,

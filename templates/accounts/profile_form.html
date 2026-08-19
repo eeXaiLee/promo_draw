@@ -63,6 +63,13 @@
       </ul>
     {% endif %}
 
+    <div class="checkbox-field">
+      {{ form.notify_promo_registered }}
+      <label for="{{ form.notify_promo_registered.id_for_label }}">
+        {{ form.notify_promo_registered.label }}
+      </label>
+    </div>
+
     <button type="submit">Сохранить</button>
   </form>
 {% endblock %}

@@ -100,6 +100,7 @@ class ProfileForm(forms.ModelForm):
             "patronymic",
             "birth_date",
             "phone",
+            "notify_promo_registered",
         )
         labels = {
             "last_name": "Фамилия",
@@ -107,6 +108,9 @@ class ProfileForm(forms.ModelForm):
             "patronymic": "Отчество",
             "birth_date": "Дата рождения",
             "phone": "Телефон",
+            "notify_promo_registered": (
+                "Присылать письмо при регистрации промокода"
+            ),
         }
         widgets = {"birth_date": forms.DateInput(attrs={"type": "date"})}
 
