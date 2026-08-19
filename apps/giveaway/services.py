@@ -32,6 +32,8 @@ def finalize_draw(
     Каждый погашенный за день код — отдельный билет: чем больше кодов
     погасил человек в этот день, тем выше его шанс выиграть.
     """
+    from .tasks import send_winner_email
+
     with transaction.atomic():
         draw = DailyDraw.objects.select_for_update().get(pk=draw.pk)
         if draw.is_finalized:
@@ -73,5 +75,8 @@ def finalize_draw(
 
         draw.is_finalized = True
         draw.save(update_fields=["is_finalized"])
+
+    for winner in winners:
+        send_winner_email.delay(winner.pk)
 
     return winners
