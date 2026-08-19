@@ -7,10 +7,13 @@
   <style>
     body {
       font-family: system-ui, sans-serif;
+      margin: 0;
+      color: #1a1a1a;
+    }
+    .container {
       max-width: 480px;
       margin: 3rem auto;
       padding: 0 1rem;
-      color: #1a1a1a;
     }
     h1 { font-size: 1.4rem; }
     label { display: block; margin-top: 1rem; font-weight: 600; }
@@ -32,38 +35,51 @@
     .tabs a { padding: 0.3rem 0.6rem; border-radius: 4px; text-decoration: none; color: #1a1a1a; background: #f0f0f0; }
     .tabs a.active { background: #1a1a1a; color: #fff; }
     .winners { padding-left: 1.2rem; }
+    .nav-bar {
+      border-bottom: 1px solid #e0e0e0;
+      padding: 1rem;
+    }
     .nav {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 1rem;
-      padding-bottom: 1rem;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #e0e0e0;
+      justify-content: center;
+      gap: 0.25rem 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
     }
-    .nav a { color: #1a1a1a; text-decoration: none; }
-    .nav a:hover { text-decoration: underline; }
-    .nav form { margin: 0; }
+    .nav a, .nav button {
+      color: #1a1a1a;
+      text-decoration: none;
+      font: inherit;
+      line-height: inherit;
+      white-space: nowrap;
+    }
+    .nav a:hover, .nav button:hover { text-decoration: underline; }
+    .nav form { display: contents; }
     .nav button {
+      appearance: none;
       margin: 0;
       padding: 0;
       border: none;
       background: none;
-      color: #1a1a1a;
-      text-decoration: underline;
       cursor: pointer;
-      font: inherit;
     }
   </style>
 </head>
 <body>
-  {% include "_nav.html" %}
-  {% if messages %}
-    <ul class="messages">
-      {% for message in messages %}
-        <li class="{{ message.tags }}">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-  {% block content %}{% endblock %}
+  <div class="nav-bar">
+    {% include "_nav.html" %}
+  </div>
+  <div class="container">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
 </body>
 </html>

@@ -1,5 +1,6 @@
 {% if user.is_authenticated %}
   <nav class="nav">
+    <a href="{% url 'home' %}">Главная</a>
     <a href="{% url 'accounts:dashboard' %}">Личный кабинет</a>
     <a href="{% url 'promocodes:redeem' %}">Ввести промокод</a>
     <a href="{% url 'giveaway:winners' %}">Победители</a>
@@ -10,6 +11,7 @@
   </nav>
 {% else %}
   <nav class="nav">
+    <a href="{% url 'home' %}">Главная</a>
     <a href="{% url 'accounts:login' %}">Войти</a>
     <a href="{% url 'accounts:register' %}">Регистрация</a>
   </nav>

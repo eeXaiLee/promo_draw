@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}promo_draw — акция с промокодами{% endblock %}
+
+{% block content %}
+  <h1>Акция с промокодами promo_draw</h1>
+  <p>
+    Найдите промокод на палочке от мороженого, введите его в личном
+    кабинете и участвуйте в ежедневном розыгрыше призов.
+  </p>
+
+  {% if user.is_authenticated %}
+    <p><a href="{% url 'accounts:dashboard' %}">Перейти в личный кабинет</a></p>
+  {% else %}
+    <p><a href="{% url 'accounts:register' %}">Зарегистрироваться</a></p>
+    <p><a href="{% url 'accounts:login' %}">Войти</a></p>
+  {% endif %}
+{% endblock %}
