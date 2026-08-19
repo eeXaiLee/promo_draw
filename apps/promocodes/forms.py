@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from django import forms
+from django.core.files.uploadedfile import UploadedFile
+
+from .models import PROMO_CODE_LENGTH
 
 XLSX_CONTENT_TYPES = {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -12,7 +15,7 @@ class PromoCodeForm(forms.Form):
 
     code = forms.CharField(
         label="Промокод",
-        max_length=8,
+        max_length=PROMO_CODE_LENGTH,
         widget=forms.TextInput(
             attrs={"placeholder": "ABCD1234", "autocomplete": "off"}
         ),
@@ -28,7 +31,7 @@ class PromoCodeUploadForm(forms.Form):
 
     file = forms.FileField(label="Файл .xlsx")
 
-    def clean_file(self) -> object:
+    def clean_file(self) -> UploadedFile:
         file = self.cleaned_data["file"]
         if not file.name.lower().endswith(".xlsx"):
             raise forms.ValidationError("Нужен файл в формате .xlsx.")

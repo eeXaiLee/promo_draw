@@ -4,8 +4,10 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
 
+PROMO_CODE_LENGTH = 8
+
 code_validator = RegexValidator(
-    r"^[A-Z0-9]{8}$",
+    rf"^[A-Z0-9]{{{PROMO_CODE_LENGTH}}}$",
     "Промокод должен состоять из 8 заглавных латинских букв и цифр.",
 )
 
@@ -14,7 +16,7 @@ class PromoCode(models.Model):
     """Промокод акции. Погашается один раз конкретным пользователем."""
 
     code = models.CharField(
-        max_length=8, unique=True, validators=[code_validator]
+        max_length=PROMO_CODE_LENGTH, unique=True, validators=[code_validator]
     )
     used_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

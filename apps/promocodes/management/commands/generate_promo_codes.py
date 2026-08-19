@@ -10,16 +10,17 @@ from django.core.management.base import (
     CommandParser,
 )
 
-from apps.promocodes.models import PromoCode
+from apps.promocodes.models import PROMO_CODE_LENGTH, PromoCode
 
 ALPHABET = string.ascii_uppercase + string.digits
-CODE_LENGTH = 8
 BATCH_SIZE = 10_000
 MAX_EMPTY_BATCHES = 5
 
 
 def generate_code() -> str:
-    return "".join(secrets.choice(ALPHABET) for _ in range(CODE_LENGTH))
+    return "".join(
+        secrets.choice(ALPHABET) for _ in range(PROMO_CODE_LENGTH)
+    )
 
 
 class Command(BaseCommand):

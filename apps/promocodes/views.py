@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView
@@ -31,21 +31,13 @@ class RedeemCodeView(LoginRequiredMixin, FormView):
         )
         return redirect("accounts:profile")
 
-    def get(
+    def dispatch(
         self, request: HttpRequest, *args: object, **kwargs: object
-    ) -> HttpResponse:
+    ) -> HttpResponseBase:
         redirect_response = self._profile_incomplete_redirect()
         if redirect_response is not None:
             return redirect_response
-        return super().get(request, *args, **kwargs)
-
-    def post(
-        self, request: HttpRequest, *args: object, **kwargs: object
-    ) -> HttpResponse:
-        redirect_response = self._profile_incomplete_redirect()
-        if redirect_response is not None:
-            return redirect_response
-        return super().post(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form: PromoCodeForm) -> HttpResponse:
         user = self.request.user
