@@ -1,0 +1,9 @@
+services:
+  web:
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+
+  postgres:
+    ports:
+      - "5433:5432"

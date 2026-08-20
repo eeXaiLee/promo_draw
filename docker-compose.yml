@@ -1,0 +1,107 @@
+services:
+  web:
+    build: .
+    image: promo_draw:latest
+    command: gunicorn promo_draw.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    volumes:
+      - .:/code
+      - static_data:/code/static
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_data:/code/static:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:latest
+    command: redis-server --save "" --appendonly no
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
+    restart: unless-stopped
+
+  celery:
+    image: promo_draw:latest
+    command: celery -A promo_draw worker --loglevel=info --pool=solo --concurrency=1
+    volumes:
+      - .:/code
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      web:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+    restart: unless-stopped
+
+  celery_beat:
+    image: promo_draw:latest
+    command: celery -A promo_draw beat --loglevel=info
+    volumes:
+      - .:/code
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://redis:6379/1
+    restart: unless-stopped
+
+
+volumes:
+  redis_data:
+  postgres_data:
+  static_data:

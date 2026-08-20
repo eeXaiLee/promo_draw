@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: promo_draw
+          POSTGRES_USER: promo_draw
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U promo_draw -d promo_draw"
+          --health-interval 5s
+          --health-timeout 2s
+          --health-retries 5
+
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 2s
+          --health-retries 5
+
+    env:
+      SECRET_KEY: ci-test-secret-key
+      DEBUG: "False"
+      ALLOWED_HOSTS: 127.0.0.1
+      POSTGRES_DB: promo_draw
+      POSTGRES_USER: promo_draw
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      CELERY_BROKER_URL: redis://localhost:6379/0
+      REDIS_CACHE_URL: redis://localhost:6379/1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements-dev.txt
+
+      - run: ruff check .
+      - run: ruff format --check .
+
+      - run: mypy .
+
+      - run: pytest
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t promo_draw:ci .
