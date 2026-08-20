@@ -1,0 +1,48 @@
+from __future__ import annotations
+
+import datetime
+
+import pytest
+from django.core.cache import cache
+
+from apps.accounts.models import User
+from apps.giveaway.models import Prize
+from promo_draw.celery import app as celery_app
+
+
+@pytest.fixture(autouse=True)
+def _eager_celery(settings):
+    """Таски выполняются синхронно — тестам не нужен настоящий брокер/воркер."""
+    celery_app.conf.task_always_eager = True
+    celery_app.conf.task_eager_propagates = True
+    settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+
+
+@pytest.fixture(autouse=True)
+def _clear_cache():
+    """Бан и счётчик неудачных попыток живут в общем Redis — изолируем тесты."""
+    cache.clear()
+    yield
+    cache.clear()
+
+
+@pytest.fixture
+def complete_user(db) -> User:
+    """Пользователь с заполненным профилем — может гасить промокоды."""
+    return User.objects.create_user(
+        email="redeemer@example.com",
+        password="testpass123",
+        first_name="Иван",
+        last_name="Иванов",
+        birth_date=datetime.date(1990, 1, 1),
+        phone="+79991234567",
+    )
+
+
+@pytest.fixture
+def two_prizes(db) -> list[Prize]:
+    """Два активных приза — под `DRAW_PRIZE_COUNT` из giveaway."""
+    return [
+        Prize.objects.create(title="Сертификат"),
+        Prize.objects.create(title="Наушники"),
+    ]
