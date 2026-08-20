@@ -47,9 +47,7 @@ def send_password_reset_email(user_id: int) -> None:
 
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
-    reset_path = reverse(
-        "accounts:password_reset_confirm", args=[uid, token]
-    )
+    reset_path = reverse("accounts:password_reset_confirm", args=[uid, token])
     reset_url = f"{settings.SITE_URL}{reset_path}"
 
     body = render_to_string(

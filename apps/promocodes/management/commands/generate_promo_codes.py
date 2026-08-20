@@ -18,9 +18,7 @@ MAX_EMPTY_BATCHES = 5
 
 
 def generate_code() -> str:
-    return "".join(
-        secrets.choice(ALPHABET) for _ in range(PROMO_CODE_LENGTH)
-    )
+    return "".join(secrets.choice(ALPHABET) for _ in range(PROMO_CODE_LENGTH))
 
 
 class Command(BaseCommand):
