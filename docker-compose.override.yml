@@ -7,3 +7,7 @@ services:
   postgres:
     ports:
       - "5433:5432"
+
+  nginx:
+    ports: !override
+      - "80:80"
