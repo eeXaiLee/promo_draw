@@ -1,10 +1,14 @@
-name: CI
+name: CI/CD
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
 
 jobs:
   test:
@@ -71,3 +75,30 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t promo_draw:ci .
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H v3212274.hosted-by-vdsina.ru >> ~/.ssh/known_hosts
+
+          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10 \
+              -i ~/.ssh/deploy_key user1@v3212274.hosted-by-vdsina.ru '
+            set -e
+            cd /opt/promo_draw
+            git pull
+            docker compose -f docker-compose.yml build
+            docker compose -f docker-compose.yml up -d
+            docker compose -f docker-compose.yml restart nginx
+            docker compose -f docker-compose.yml exec -T web python manage.py migrate
+            docker compose -f docker-compose.yml exec -T web python manage.py collectstatic --noinput
+            docker builder prune -a -f
+          '
