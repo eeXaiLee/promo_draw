@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-import random
+import secrets
 from zoneinfo import ZoneInfo
 
 from django.db import transaction
@@ -47,10 +47,10 @@ def finalize_draw(
                 used_at__lt=day_end,
             ).exclude(used_by__giveaway_win__isnull=False)
         )
-        random.shuffle(tickets)
+        secrets.SystemRandom().shuffle(tickets)
 
         prizes = list(Prize.objects.filter(is_active=True))
-        random.shuffle(prizes)
+        secrets.SystemRandom().shuffle(prizes)
 
         max_winners = min(DRAW_PRIZE_COUNT, len(prizes))
         seen_users: set[int] = set()
