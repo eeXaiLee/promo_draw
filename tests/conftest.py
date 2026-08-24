@@ -44,6 +44,19 @@ def complete_user(db) -> User:
 
 
 @pytest.fixture
+def profile_form_data() -> dict[str, object]:
+    """Валидные данные для ProfileForm — телефон намеренно в сыром виде."""
+    return {
+        "last_name": "Иванов",
+        "first_name": "Иван",
+        "no_patronymic": True,
+        "birth_date": "1990-01-01",
+        "phone": "8 (999) 123-45-67",
+        "notify_promo_registered": True,
+    }
+
+
+@pytest.fixture
 def two_prizes(db) -> list[Prize]:
     """Два активных приза — под `DRAW_PRIZE_COUNT` из giveaway."""
     return [

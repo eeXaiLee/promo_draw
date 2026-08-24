@@ -7,6 +7,8 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.utils import timezone
 
+from .validators import phone_validator, validate_birth_date
+
 
 class UserManager(BaseUserManager["User"]):
     """Создаёт пользователей по email вместо username."""
@@ -47,8 +49,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
     patronymic = models.CharField(max_length=150, blank=True)
-    birth_date = models.DateField(null=True, blank=True)
-    phone = models.CharField(max_length=20, blank=True)
+    birth_date = models.DateField(
+        null=True, blank=True, validators=[validate_birth_date]
+    )
+    phone = models.CharField(
+        max_length=20, blank=True, validators=[phone_validator]
+    )
 
     personal_data_consent = models.BooleanField(default=False)
     email_confirmed = models.BooleanField(default=False)

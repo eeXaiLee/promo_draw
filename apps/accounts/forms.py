@@ -14,6 +14,7 @@ from django.http import HttpRequest
 
 from .models import User
 from .tasks import send_password_reset_email
+from .validators import normalize_phone
 
 
 class RegistrationForm(forms.ModelForm):
@@ -91,6 +92,7 @@ class ProfileForm(forms.ModelForm):
     """Личные данные: обязательны для ввода промокода (кроме отчества)."""
 
     no_patronymic = forms.BooleanField(label="Нет отчества", required=False)
+    phone = forms.CharField(label="Телефон", help_text="Формат: +79XXXXXXXXX")
 
     class Meta:
         model = User
@@ -124,6 +126,9 @@ class ProfileForm(forms.ModelForm):
         )
         if had_no_patronymic:
             self.fields["no_patronymic"].initial = True
+
+    def clean_phone(self) -> str:
+        return normalize_phone(self.cleaned_data["phone"])
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean() or {}

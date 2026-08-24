@@ -34,6 +34,7 @@ def test_redeem_code_already_used(complete_user: User) -> None:
 
 
 def test_redeem_code_email_not_confirmed(complete_user: User) -> None:
+    """Без подтверждённой почты промокод не принимается."""
     complete_user.email_confirmed = False
     complete_user.save(update_fields=["email_confirmed"])
     PromoCode.objects.create(code="CCCC3333")
