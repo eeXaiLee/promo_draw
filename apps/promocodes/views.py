@@ -20,21 +20,28 @@ class RedeemCodeView(LoginRequiredMixin, FormView):
     template_name = "promocodes/redeem_code.html"
     success_url = reverse_lazy("promocodes:redeem")
 
-    def _profile_incomplete_redirect(self) -> HttpResponse | None:
+    def _access_denied_redirect(self) -> HttpResponse | None:
         user = self.request.user
         assert isinstance(user, User)
-        if user.profile_is_complete:
-            return None
-        messages.error(
-            self.request,
-            "Чтобы ввести промокод, сначала заполните профиль.",
-        )
-        return redirect("accounts:profile")
+        if not user.email_confirmed:
+            messages.error(
+                self.request,
+                "Чтобы ввести промокод, сначала подтвердите почту по "
+                "ссылке из письма.",
+            )
+            return redirect("accounts:dashboard")
+        if not user.profile_is_complete:
+            messages.error(
+                self.request,
+                "Чтобы ввести промокод, сначала заполните профиль.",
+            )
+            return redirect("accounts:profile")
+        return None
 
     def dispatch(
         self, request: HttpRequest, *args: object, **kwargs: object
     ) -> HttpResponseBase:
-        redirect_response = self._profile_incomplete_redirect()
+        redirect_response = self._access_denied_redirect()
         if redirect_response is not None:
             return redirect_response
         return super().dispatch(request, *args, **kwargs)

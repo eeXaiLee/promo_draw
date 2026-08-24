@@ -28,7 +28,10 @@ def _clear_cache():
 
 @pytest.fixture
 def complete_user(db) -> User:
-    """Пользователь с заполненным профилем — может гасить промокоды."""
+    """Пользователь с заполненным профилем и подтверждённой почтой.
+
+    Может гасить промокоды.
+    """
     return User.objects.create_user(
         email="redeemer@example.com",
         password="testpass123",
@@ -36,6 +39,7 @@ def complete_user(db) -> User:
         last_name="Иванов",
         birth_date=datetime.date(1990, 1, 1),
         phone="+79991234567",
+        email_confirmed=True,
     )
 
 

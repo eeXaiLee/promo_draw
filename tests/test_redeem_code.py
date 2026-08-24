@@ -33,6 +33,17 @@ def test_redeem_code_already_used(complete_user: User) -> None:
     assert result.message == "Этот промокод уже был использован."
 
 
+def test_redeem_code_email_not_confirmed(complete_user: User) -> None:
+    complete_user.email_confirmed = False
+    complete_user.save(update_fields=["email_confirmed"])
+    PromoCode.objects.create(code="CCCC3333")
+
+    result = redeem_code(complete_user, "CCCC3333")
+
+    assert not result.success
+    assert result.failure_reason == "email_not_confirmed"
+
+
 def test_redeem_code_bans_after_three_failed_attempts(
     complete_user: User,
 ) -> None:

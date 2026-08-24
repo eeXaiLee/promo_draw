@@ -67,5 +67,10 @@ urlpatterns = [
         name="password_change_done",
     ),
     path("profile/", views.ProfileUpdateView.as_view(), name="profile"),
+    path(
+        "resend-confirmation/",
+        views.resend_confirmation_email,
+        name="resend_confirmation_email",
+    ),
     path("", views.dashboard, name="dashboard"),
 ]

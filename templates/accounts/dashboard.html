@@ -6,6 +6,18 @@
   <h1>Личный кабинет</h1>
   <p>Вы вошли как {{ user.email }}.</p>
 
+  {% if not user.email_confirmed %}
+    <ul class="messages">
+      <li class="error">
+        Почта не подтверждена — без этого промокод не примется.
+        <form method="post" action="{% url 'accounts:resend_confirmation_email' %}">
+          {% csrf_token %}
+          <button type="submit">Отправить письмо ещё раз</button>
+        </form>
+      </li>
+    </ul>
+  {% endif %}
+
   {% if not user.profile_is_complete %}
     <ul class="messages">
       <li class="error">

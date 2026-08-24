@@ -44,6 +44,7 @@ class PromoRedemptionAttempt(models.Model):
         ALREADY_USED = "already_used", "Код уже использован"
         BANNED = "banned", "Временная блокировка"
         PROFILE_INCOMPLETE = "profile_incomplete", "Не заполнен профиль"
+        EMAIL_NOT_CONFIRMED = "email_not_confirmed", "Почта не подтверждена"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

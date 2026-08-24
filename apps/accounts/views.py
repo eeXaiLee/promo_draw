@@ -5,10 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
+from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, UpdateView
 
 from .forms import ProfileForm, RegistrationForm
@@ -62,6 +63,20 @@ def confirm_email(
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
     return render(request, "accounts/dashboard.html")
+
+
+@login_required
+@require_POST
+def resend_confirmation_email(request: HttpRequest) -> HttpResponse:
+    """Повторно отправляет письмо подтверждения почты."""
+    user = request.user
+    assert isinstance(user, User)
+    if user.email_confirmed:
+        messages.info(request, "Почта уже подтверждена.")
+    else:
+        send_confirmation_email.delay(user.pk)
+        messages.success(request, "Письмо с подтверждением отправлено.")
+    return redirect("accounts:dashboard")
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):

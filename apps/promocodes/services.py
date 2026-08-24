@@ -17,6 +17,10 @@ from .tasks import send_promo_registered_email
 FailureReason = PromoRedemptionAttempt.FailureReason
 
 FAILURE_MESSAGES: dict[str, str] = {
+    FailureReason.EMAIL_NOT_CONFIRMED: (
+        "Сначала подтвердите почту по ссылке из письма — без этого "
+        "промокод не принимается."
+    ),
     FailureReason.PROFILE_INCOMPLETE: (
         "Сначала заполните профиль — без этого промокод не принимается."
     ),
@@ -46,6 +50,9 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
         return _fail(
             user, code_input, FailureReason.BANNED, message=ban_message
         )
+
+    if not user.email_confirmed:
+        return _fail(user, code_input, FailureReason.EMAIL_NOT_CONFIRMED)
 
     if not user.profile_is_complete:
         return _fail(user, code_input, FailureReason.PROFILE_INCOMPLETE)
