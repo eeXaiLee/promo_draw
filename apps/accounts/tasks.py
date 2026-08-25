@@ -9,11 +9,13 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from promo_draw.celery import EMAIL_TASK_KWARGS
+
 from .models import User
 from .tokens import email_confirmation_token
 
 
-@shared_task
+@shared_task(**EMAIL_TASK_KWARGS)
 def send_confirmation_email(user_id: int) -> None:
     """Отправляет письмо со ссылкой подтверждения почты."""
     try:
@@ -37,7 +39,7 @@ def send_confirmation_email(user_id: int) -> None:
     )
 
 
-@shared_task
+@shared_task(**EMAIL_TASK_KWARGS)
 def send_password_reset_email(user_id: int) -> None:
     """Отправляет письмо со ссылкой сброса пароля."""
     try:

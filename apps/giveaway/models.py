@@ -57,6 +57,7 @@ class Winner(models.Model):
     )
     determined_manually = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    email_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = "победитель"

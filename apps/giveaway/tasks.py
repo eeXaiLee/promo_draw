@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 
 from apps.analytics.services import record_daily_stats
+from promo_draw.celery import EMAIL_TASK_KWARGS
 
 from .models import DailyDraw, Winner
 from .services import MOSCOW_TZ, finalize_draw
@@ -24,7 +25,7 @@ def finalize_yesterday_draw() -> None:
     record_daily_stats(yesterday)
 
 
-@shared_task
+@shared_task(**EMAIL_TASK_KWARGS)
 def send_winner_email(winner_id: int) -> None:
     """Письмо победителю — обязательное, без возможности отключить."""
     try:
@@ -43,3 +44,13 @@ def send_winner_email(winner_id: int) -> None:
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[winner.user.email],
     )
+    winner.email_sent_at = timezone.now()
+    winner.save(update_fields=["email_sent_at"])
+
+
+@shared_task
+def resend_pending_winner_emails() -> None:
+    """Досылает письма победителям, которым оно ещё не ушло."""
+    pending_ids = Winner.objects.filter(email_sent_at__isnull=True)
+    for winner_id in pending_ids.values_list("pk", flat=True):
+        send_winner_email.delay(winner_id)

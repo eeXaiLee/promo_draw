@@ -1,4 +1,5 @@
 import os
+import smtplib
 
 from celery import Celery
 from dotenv import load_dotenv
@@ -15,3 +16,11 @@ app.conf.broker_connection_max_retries = 1
 app.conf.beat_scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
 
 app.autodiscover_tasks()
+
+# Общие настройки повтора для тасок отправки писем: растущая пауза между
+# попытками и ограничение на число попыток
+EMAIL_TASK_KWARGS = {
+    "autoretry_for": (OSError, smtplib.SMTPException),
+    "retry_backoff": True,
+    "max_retries": 5,
+}

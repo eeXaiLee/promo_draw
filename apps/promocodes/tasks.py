@@ -6,11 +6,12 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
 from apps.accounts.models import User
+from promo_draw.celery import EMAIL_TASK_KWARGS
 
 from .models import PromoCode
 
 
-@shared_task
+@shared_task(**EMAIL_TASK_KWARGS)
 def send_promo_registered_email(promo_code_id: int) -> None:
     """Письмо о погашении кода — только если пользователь не отключил его."""
     try:

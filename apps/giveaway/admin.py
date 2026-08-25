@@ -50,6 +50,7 @@ class WinnerAdmin(admin.ModelAdmin):
         "user",
         "determined_manually",
         "created_at",
+        "email_sent_at",
     )
     list_filter = ("determined_manually",)
     search_fields = ("user__email", "prize__title")
@@ -60,4 +61,5 @@ class WinnerAdmin(admin.ModelAdmin):
         "promo_code",
         "determined_manually",
         "created_at",
+        "email_sent_at",
     )
