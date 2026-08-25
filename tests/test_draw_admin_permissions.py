@@ -1,0 +1,47 @@
+from __future__ import annotations
+
+from django.contrib import admin as django_admin
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.test import RequestFactory
+
+from apps.accounts.models import User
+from apps.giveaway.admin import DailyDrawAdmin
+from apps.giveaway.models import DailyDraw
+
+
+def _staff_with_permissions(*codenames: str) -> User:
+    """Сотрудник с указанными правами на DailyDraw."""
+    user = User.objects.create_user(
+        email="staff@example.com", password="x", is_staff=True
+    )
+    content_type = ContentType.objects.get_for_model(DailyDraw)
+    permissions = Permission.objects.filter(
+        content_type=content_type, codename__in=codenames
+    )
+    user.user_permissions.add(*permissions)
+    return user
+
+
+def test_view_only_staff_has_no_finalize_action(db) -> None:
+    """У сотрудника с правом только на просмотр нет ручного розыгрыша."""
+    viewer = _staff_with_permissions("view_dailydraw")
+    request = RequestFactory().get("/admin/giveaway/dailydraw/")
+    request.user = viewer
+    admin_instance = DailyDrawAdmin(DailyDraw, django_admin.site)
+
+    actions = admin_instance.get_actions(request)
+
+    assert "finalize_manually" not in actions
+
+
+def test_staff_with_change_permission_has_finalize_action(db) -> None:
+    """У сотрудника с правом на изменение действие доступно."""
+    editor = _staff_with_permissions("view_dailydraw", "change_dailydraw")
+    request = RequestFactory().get("/admin/giveaway/dailydraw/")
+    request.user = editor
+    admin_instance = DailyDrawAdmin(DailyDraw, django_admin.site)
+
+    actions = admin_instance.get_actions(request)
+
+    assert "finalize_manually" in actions

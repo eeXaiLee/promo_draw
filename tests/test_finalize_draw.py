@@ -54,8 +54,12 @@ def test_finalize_draw_manual_and_automatic_dont_double_finalize(
     for i, user in enumerate(users):
         _redeem(user, f"CODE000{i}", DRAW_DATE)
 
-    manual_winners = finalize_draw(draw, determined_manually=True)
+    staff_user = User.objects.create_user(
+        email="staff@example.com", password="x"
+    )
+    manual_winners = finalize_draw(draw, determined_by=staff_user)
     assert len(manual_winners) == 2
+    assert all(w.determined_by_id == staff_user.pk for w in manual_winners)
 
     auto_winners = finalize_draw(draw)
     assert auto_winners == []

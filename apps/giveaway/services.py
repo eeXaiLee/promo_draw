@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from django.db import transaction
 
+from apps.accounts.models import User
 from apps.promocodes.models import PromoCode
 
 from .models import DRAW_PRIZE_COUNT, DailyDraw, Prize, Winner
@@ -22,7 +23,7 @@ def moscow_day_bounds(
 
 
 def finalize_draw(
-    draw: DailyDraw, determined_manually: bool = False
+    draw: DailyDraw, determined_by: User | None = None
 ) -> list[Winner]:
     """Определяет победителей дня.
 
@@ -31,6 +32,9 @@ def finalize_draw(
 
     Каждый погашенный за день код — отдельный билет: чем больше кодов
     погасил человек в этот день, тем выше его шанс выиграть.
+
+    `determined_by` — сотрудник, запустивший розыгрыш вручную из админки.
+    Для автоматического запуска остаётся None.
     """
     from .tasks import send_winner_email
 
@@ -69,7 +73,8 @@ def finalize_draw(
                     prize=prizes[len(winners)],
                     user_id=user_id,
                     promo_code=promo_code,
-                    determined_manually=determined_manually,
+                    determined_manually=determined_by is not None,
+                    determined_by=determined_by,
                 )
             )
 

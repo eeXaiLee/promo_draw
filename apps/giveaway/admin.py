@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
+from apps.accounts.models import User
 from apps.analytics.services import record_daily_stats
 
 from .models import DailyDraw, Prize, Winner
@@ -30,13 +31,16 @@ class DailyDrawAdmin(admin.ModelAdmin):
             return ("is_finalized",)
         return ("date", "is_finalized")
 
-    @admin.action(description="Определить победителя вручную")
+    @admin.action(
+        description="Определить победителя вручную", permissions=["change"]
+    )
     def finalize_manually(
         self, request: HttpRequest, queryset: QuerySet[DailyDraw]
     ) -> None:
+        assert isinstance(request.user, User)
         total_winners = 0
         for draw in queryset:
-            winners = finalize_draw(draw, determined_manually=True)
+            winners = finalize_draw(draw, determined_by=request.user)
             total_winners += len(winners)
             record_daily_stats(draw.date)
         self.message_user(request, f"Определено победителей: {total_winners}")
@@ -49,6 +53,7 @@ class WinnerAdmin(admin.ModelAdmin):
         "prize",
         "user",
         "determined_manually",
+        "determined_by",
         "created_at",
         "email_sent_at",
     )
@@ -60,6 +65,7 @@ class WinnerAdmin(admin.ModelAdmin):
         "user",
         "promo_code",
         "determined_manually",
+        "determined_by",
         "created_at",
         "email_sent_at",
     )

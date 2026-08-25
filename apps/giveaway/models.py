@@ -56,6 +56,13 @@ class Winner(models.Model):
         related_name="giveaway_wins",
     )
     determined_manually = models.BooleanField(default=False)
+    determined_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="manual_draws",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     email_sent_at = models.DateTimeField(null=True, blank=True)
 
