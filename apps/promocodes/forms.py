@@ -9,6 +9,8 @@ XLSX_CONTENT_TYPES = {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 }
 
+MAX_UPLOAD_SIZE_MB = 10
+
 
 class PromoCodeForm(forms.Form):
     """Ввод промокода на странице погашения."""
@@ -38,5 +40,10 @@ class PromoCodeUploadForm(forms.Form):
         if file.content_type not in XLSX_CONTENT_TYPES:
             raise forms.ValidationError(
                 "Файл не похож на настоящий .xlsx — проверьте расширение."
+            )
+        if file.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024:
+            raise forms.ValidationError(
+                f"Файл больше {MAX_UPLOAD_SIZE_MB} МБ — разбейте на "
+                f"несколько файлов поменьше."
             )
         return file

@@ -142,11 +142,12 @@ def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
         seen.add(code)
         new_codes.append(code)
 
-    before = PromoCode.objects.count()
     PromoCode.objects.bulk_create(
-        [PromoCode(code=code) for code in new_codes], ignore_conflicts=True
+        [PromoCode(code=code) for code in new_codes],
+        batch_size=1000,
+        ignore_conflicts=True,
     )
-    added = PromoCode.objects.count() - before
+    added = len(new_codes)
 
     return ImportResult(
         total_rows=len(raw_values),
