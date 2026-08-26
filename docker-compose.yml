@@ -4,7 +4,6 @@ services:
     image: promo_draw:latest
     command: gunicorn promo_draw.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
-      - .:/code
       - static_data:/code/static
     env_file:
       - .env
@@ -63,8 +62,6 @@ services:
   celery:
     image: promo_draw:latest
     command: celery -A promo_draw worker --loglevel=info --pool=solo --concurrency=1
-    volumes:
-      - .:/code
     depends_on:
       redis:
         condition: service_healthy
@@ -84,8 +81,6 @@ services:
   celery_beat:
     image: promo_draw:latest
     command: celery -A promo_draw beat --loglevel=info
-    volumes:
-      - .:/code
     depends_on:
       redis:
         condition: service_healthy
