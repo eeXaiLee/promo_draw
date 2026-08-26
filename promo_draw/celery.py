@@ -15,6 +15,10 @@ app.conf.broker_connection_retry = True
 app.conf.broker_connection_max_retries = 1
 app.conf.beat_scheduler = "django_celery_beat.schedulers:DatabaseScheduler"
 
+app.conf.task_acks_late = True
+app.conf.task_reject_on_worker_lost = True
+app.conf.broker_transport_options = {"visibility_timeout": 300}
+
 app.autodiscover_tasks()
 
 # Общие настройки повтора для тасок отправки писем: растущая пауза между

@@ -61,7 +61,7 @@ services:
 
   celery:
     image: promo_draw:latest
-    command: celery -A promo_draw worker --loglevel=info --pool=solo --concurrency=1
+    command: celery -A promo_draw worker --loglevel=info --pool=prefork --concurrency=2
     depends_on:
       redis:
         condition: service_healthy
