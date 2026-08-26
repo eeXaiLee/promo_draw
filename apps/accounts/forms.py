@@ -13,6 +13,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest
 
 from .models import User
+from .rate_limit import get_client_ip, hit_rate_limit
 from .tasks import send_password_reset_email
 from .validators import normalize_phone
 
@@ -84,7 +85,15 @@ class PasswordResetRequestForm(PasswordResetForm):
         html_email_template_name: str | None = None,
         extra_email_context: dict[str, str] | None = None,
     ) -> None:
-        for user in self.get_users(self.cleaned_data["email"]):
+        email = self.cleaned_data["email"]
+        rate_limited = hit_rate_limit(f"reset:email:{email}")
+        if request is not None:
+            ip = get_client_ip(request)
+            rate_limited = hit_rate_limit(f"reset:ip:{ip}") or rate_limited
+        if rate_limited:
+            return
+
+        for user in self.get_users(email):
             send_password_reset_email.delay(user.pk)
 
 

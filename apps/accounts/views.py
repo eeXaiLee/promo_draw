@@ -14,6 +14,7 @@ from django.views.generic import CreateView, UpdateView
 
 from .forms import ProfileForm, RegistrationForm
 from .models import User
+from .rate_limit import get_client_ip, hit_rate_limit
 from .tasks import send_confirmation_email
 from .tokens import email_confirmation_token
 
@@ -26,6 +27,19 @@ class RegisterView(CreateView):
     success_url = reverse_lazy("accounts:register_done")
 
     def form_valid(self, form: RegistrationForm) -> HttpResponse:
+        email = form.cleaned_data["email"]
+        rate_limited = hit_rate_limit(
+            f"register:ip:{get_client_ip(self.request)}"
+        )
+        rate_limited = hit_rate_limit(f"register:email:{email}") or rate_limited
+        if rate_limited:
+            form.add_error(
+                None,
+                "Слишком много попыток регистрации. Подождите минуту и "
+                "попробуйте снова.",
+            )
+            return self.form_invalid(form)
+
         response = super().form_valid(form)
         assert self.object is not None
         send_confirmation_email.delay(self.object.pk)
