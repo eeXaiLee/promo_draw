@@ -14,7 +14,15 @@ def register_failed_attempt(user_id: int) -> None:
     """Считает неудачные попытки подряд и банит при превышении лимита."""
     key = _fails_key(user_id)
     added = cache.add(key, 1, timeout=FAILS_WINDOW_SECONDS)
-    count = 1 if added else cache.incr(key)
+    if added:
+        count = 1
+    else:
+        try:
+            count = cache.incr(key)
+        except ValueError:
+            # Ключ истёк между add и incr — окно уже закрылось, отсчёт заново.
+            cache.set(key, 1, timeout=FAILS_WINDOW_SECONDS)
+            count = 1
 
     if count >= FAILS_THRESHOLD:
         cache.set(
