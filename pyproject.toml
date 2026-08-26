@@ -18,10 +18,5 @@ exclude = ["migrations/"]
 [tool.django-stubs]
 django_settings_module = "promo_draw.settings"
 
-[tool.flake8]
-max-line-length = 80
-extend-ignore = ["E203"]  # пробел перед ":" в срезах — стиль Black/ruff format
-exclude = ["migrations", "venv"]
-
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "promo_draw.settings"

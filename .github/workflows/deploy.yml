@@ -84,14 +84,16 @@ jobs:
       - name: Deploy to server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H v3212274.hosted-by-vdsina.ru >> ~/.ssh/known_hosts
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10 \
-              -i ~/.ssh/deploy_key user1@v3212274.hosted-by-vdsina.ru '
+              -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" '
             set -e
             cd /opt/promo_draw
             git pull
