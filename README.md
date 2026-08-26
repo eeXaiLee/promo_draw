@@ -86,16 +86,20 @@ celery -A promo_draw beat --loglevel=info
 
 ## Запуск через Docker
 
+Локально нужны оба файла — `docker-compose.local.yml` добавляет runserver и
+публикацию портов Postgres/nginx для разработки. Он не подхватывается
+автоматически, поэтому команда без флага `-f` на сервере поднимет
+только продакшн-конфигурацию.
+
 ```bash
 cp .env.example .env  # и подставить значения
 
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 ```
 
-Локально (`docker-compose.override.yml` подхватывается автоматически) сайт
-доступен на `http://localhost:8000/` (напрямую через runserver) и на
+Сайт доступен на `http://localhost:8000/` (напрямую через runserver) и на
 `http://localhost/` (через nginx).
 
 ## Тесты
