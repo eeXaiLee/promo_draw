@@ -4,10 +4,21 @@ import datetime
 
 import pytest
 from django.core.cache import cache
+from django.test import Client
 
 from apps.accounts.models import User
 from apps.giveaway.models import Prize
 from promo_draw.celery import app as celery_app
+
+
+@pytest.fixture
+def client() -> Client:
+    """Возвращает тестовый HTTP-клиент с подменой заголовка `X-Forwarded-Proto`.
+
+    Используется для эмуляции запросов, приходящих через HTTPS,
+    как в боевой среде.
+    """
+    return Client(HTTP_X_FORWARDED_PROTO="https")
 
 
 @pytest.fixture(autouse=True)
