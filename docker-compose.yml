@@ -49,7 +49,7 @@ services:
 
   redis:
     image: redis:latest
-    command: redis-server --save "" --appendonly no
+    command: redis-server --appendonly yes --appendfsync everysec
     volumes:
       - redis_data:/data
     healthcheck:
