@@ -31,6 +31,11 @@ class PromoCode(models.Model):
     class Meta:
         verbose_name = "промокод"
         verbose_name_plural = "промокоды"
+        indexes = [
+            models.Index(
+                fields=["used_at", "used_by"], name="promo_used_at_by_idx"
+            ),
+        ]
 
     def __str__(self) -> str:
         return self.code
@@ -61,6 +66,11 @@ class PromoRedemptionAttempt(models.Model):
     class Meta:
         verbose_name = "попытка ввода промокода"
         verbose_name_plural = "попытки ввода промокода"
+        indexes = [
+            models.Index(
+                fields=["created_at", "success"], name="attempt_created_at_idx"
+            ),
+        ]
 
     def __str__(self) -> str:
         status = "успех" if self.success else self.failure_reason
