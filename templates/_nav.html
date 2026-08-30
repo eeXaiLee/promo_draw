@@ -1,3 +1,4 @@
+{% load static %}
 {% if user.is_authenticated %}
   <nav class="nav">
     <a href="{% url 'home' %}">Главная</a>
@@ -10,9 +11,21 @@
     </form>
   </nav>
 {% else %}
-  <nav class="nav">
-    <a href="{% url 'home' %}">Главная</a>
-    <a href="{% url 'accounts:login' %}">Войти</a>
-    <a href="{% url 'accounts:register' %}">Регистрация</a>
+  <nav class="nav nav-guest">
+    <div class="nav-links">
+      <a href="#">Контакты</a>
+      <a href="#">О нас</a>
+      <a href="#">Акции</a>
+      <a href="{% url 'giveaway:winners' %}">Победители</a>
+    </div>
+    <a href="{% url 'home' %}" class="nav-logo">
+      <img src="{% static 'img/logo.svg' %}" alt="Эскимос">
+    </a>
+    <div class="nav-actions">
+      <a href="https://t.me/" class="nav-telegram" aria-label="Telegram">
+        <img src="{% static 'img/telegram.svg' %}" alt="">
+      </a>
+      <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-pill">Войти в ЛК</a>
+    </div>
   </nav>
 {% endif %}

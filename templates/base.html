@@ -135,7 +135,7 @@
       max-width: 900px;
       margin: 0 auto;
     }
-    .nav a, .nav button {
+    .nav a:not(.btn), .nav button:not(.btn) {
       color: #1a1a1a;
       text-decoration: none;
       font: inherit;
@@ -152,10 +152,62 @@
       background: none;
       cursor: pointer;
     }
+    .nav-bar-guest {
+      border-bottom: none;
+      padding: 32px 80px;
+    }
+    .nav-guest {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      max-width: none;
+      width: 100%;
+      gap: 24px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      justify-self: start;
+    }
+    .nav-links a {
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.4;
+      color: #1C2B33;
+    }
+    .nav-logo {
+      justify-self: center;
+    }
+    .nav-logo img {
+      height: 52px;
+      width: auto;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      justify-self: end;
+    }
+    .nav-telegram {
+      display: inline-flex;
+    }
+    .nav-telegram img {
+      width: 44px;
+      height: 44px;
+    }
+    .btn-pill {
+      border-radius: 152px;
+      padding: 8px 20px;
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
-  <div class="nav-bar">
+  <div class="nav-bar {% if not user.is_authenticated %}nav-bar-guest{% endif %}">
     {% include "_nav.html" %}
   </div>
   <div class="container">
