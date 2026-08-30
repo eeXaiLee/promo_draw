@@ -3,6 +3,7 @@
 {% block title %}Регистрация — promo_draw{% endblock %}
 
 {% block content %}
+<div class="container">
   <h1>Регистрация</h1>
 
   <form method="post" novalidate>
@@ -58,4 +59,5 @@
   </form>
 
   <p>Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a></p>
+</div>
 {% endblock %}

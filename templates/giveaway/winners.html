@@ -3,6 +3,7 @@
 {% block title %}Победители — promo_draw{% endblock %}
 
 {% block content %}
+<div class="container">
   <h1>Победители розыгрыша</h1>
 
   {% if not draws %}
@@ -30,4 +31,5 @@
       <p>В этот день участников не было — победителей нет.</p>
     {% endif %}
   {% endif %}
+</div>
 {% endblock %}

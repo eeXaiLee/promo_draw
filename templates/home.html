@@ -1,18 +1,135 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}promo_draw — акция с промокодами{% endblock %}
 
 {% block content %}
-  <h1>Акция с промокодами promo_draw</h1>
-  <p>
-    Найдите промокод на палочке от мороженого, введите его в личном
-    кабинете и участвуйте в ежедневном розыгрыше призов.
-  </p>
+  <section class="hero">
+    <img
+      src="{% static 'img/confetti-right.png' %}"
+      alt=""
+      class="hero-confetti hero-confetti-right"
+    >
+    <img
+      src="{% static 'img/confetti-left.png' %}"
+      alt=""
+      class="hero-confetti hero-confetti-left"
+    >
+    <div class="hero-text">
+      <h1 class="hero-title">10 месяцев побед<br>вместе с Эскимос!</h1>
+      <p class="hero-subtitle">
+        <strong>Каждое 9-е число</strong> месяца разыгрываем
+        <strong>4 крутых приза!</strong><br>
+        А в конце — грандиозный супер-розыгрыш для 10 счастливчиков!
+      </p>
+      {% if user.is_authenticated %}
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary btn-cta">
+          Участвовать
+        </a>
+      {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-cta">
+          Участвовать
+        </a>
+      {% endif %}
+    </div>
+    <img
+      src="{% static 'img/eskimos-hero.png' %}"
+      alt=""
+      class="hero-products"
+    >
+  </section>
 
-  {% if user.is_authenticated %}
-    <p><a href="{% url 'accounts:dashboard' %}">Перейти в личный кабинет</a></p>
-  {% else %}
-    <p><a href="{% url 'accounts:register' %}">Зарегистрироваться</a></p>
-    <p><a href="{% url 'accounts:login' %}">Войти</a></p>
-  {% endif %}
+  <div class="timer-card">
+    <div class="timer-top">
+      <h2 class="timer-title">Розыгрыш через:</h2>
+      <div class="timer-row">
+        <div class="timer-segment">
+          <span class="timer-number" data-timer-value="days">—</span>
+          <span class="timer-unit" data-timer-unit="days">дней</span>
+        </div>
+        <div class="timer-segment">
+          <span class="timer-number" data-timer-value="hours">—</span>
+          <span class="timer-unit" data-timer-unit="hours">часов</span>
+        </div>
+        <div class="timer-segment">
+          <span class="timer-number" data-timer-value="minutes">—</span>
+          <span class="timer-unit" data-timer-unit="minutes">минут</span>
+        </div>
+        <div class="timer-segment">
+          <span class="timer-number" data-timer-value="seconds">—</span>
+          <span class="timer-unit" data-timer-unit="seconds">секунд</span>
+        </div>
+      </div>
+    </div>
+    {% if user.is_authenticated %}
+      <a href="{% url 'promocodes:redeem' %}" class="btn timer-cta">
+        Активировать код
+      </a>
+    {% else %}
+      <a href="{% url 'accounts:register' %}" class="btn timer-cta">
+        Активировать код
+      </a>
+    {% endif %}
+  </div>
+
+  <script>
+    (function () {
+      function pluralize(n, one, few, many) {
+        n = Math.abs(n) % 100;
+        var n1 = n % 10;
+        if (n > 10 && n < 20) return many;
+        if (n1 > 1 && n1 < 5) return few;
+        if (n1 === 1) return one;
+        return many;
+      }
+
+      function nextDrawDate() {
+        var now = new Date();
+        var target = new Date(now.getFullYear(), now.getMonth(), 9, 0, 0, 0);
+        if (target <= now) {
+          target = new Date(now.getFullYear(), now.getMonth() + 1, 9, 0, 0, 0);
+        }
+        return target;
+      }
+
+      var target = nextDrawDate();
+      var numberEls = {
+        days: document.querySelector('[data-timer-value="days"]'),
+        hours: document.querySelector('[data-timer-value="hours"]'),
+        minutes: document.querySelector('[data-timer-value="minutes"]'),
+        seconds: document.querySelector('[data-timer-value="seconds"]'),
+      };
+      var unitEls = {
+        days: document.querySelector('[data-timer-unit="days"]'),
+        hours: document.querySelector('[data-timer-unit="hours"]'),
+        minutes: document.querySelector('[data-timer-unit="minutes"]'),
+        seconds: document.querySelector('[data-timer-unit="seconds"]'),
+      };
+
+      function tick() {
+        var diff = Math.max(0, target - new Date());
+        var days = Math.floor(diff / 86400000);
+        var hours = Math.floor((diff % 86400000) / 3600000);
+        var minutes = Math.floor((diff % 3600000) / 60000);
+        var seconds = Math.floor((diff % 60000) / 1000);
+
+        numberEls.days.textContent = days;
+        numberEls.hours.textContent = hours;
+        numberEls.minutes.textContent = minutes;
+        numberEls.seconds.textContent = seconds;
+
+        unitEls.days.textContent = pluralize(days, "день", "дня", "дней");
+        unitEls.hours.textContent = pluralize(hours, "час", "часа", "часов");
+        unitEls.minutes.textContent = pluralize(
+          minutes, "минута", "минуты", "минут"
+        );
+        unitEls.seconds.textContent = pluralize(
+          seconds, "секунда", "секунды", "секунд"
+        );
+      }
+
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
 {% endblock %}

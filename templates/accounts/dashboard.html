@@ -3,6 +3,7 @@
 {% block title %}Личный кабинет — promo_draw{% endblock %}
 
 {% block content %}
+<div class="container">
   <h1>Личный кабинет</h1>
   <p>Вы вошли как {{ user.email }}.</p>
 
@@ -31,4 +32,5 @@
   {% endif %}
 
   <p><a href="{% url 'accounts:password_change' %}">Сменить пароль</a></p>
+</div>
 {% endblock %}

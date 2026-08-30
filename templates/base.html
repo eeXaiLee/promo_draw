@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="ru">
 <head>
@@ -123,6 +124,8 @@
     .tabs a.active { background: #1a1a1a; color: #fff; }
     .winners { padding-left: 1.2rem; }
     .nav-bar {
+      position: relative;
+      z-index: 1;
       border-bottom: 1px solid #e0e0e0;
       padding: 1rem;
     }
@@ -204,22 +207,175 @@
       font-size: 20px;
       line-height: 1.4;
     }
+    .hero {
+      position: relative;
+      width: 1600px;
+      height: 808px;
+      max-width: 100%;
+      margin: -116px auto 0;
+      background: #E1F1FA;
+      border-radius: 0 0 60px 60px;
+      overflow: hidden;
+    }
+    .hero-confetti {
+      position: absolute;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.24;
+    }
+    .hero-confetti-right {
+      bottom: 0px;
+      right: 0px;
+      width: 659px;
+      height: 643px;
+
+    }
+    .hero-confetti-left {
+      bottom: 0px;
+      left: 0px;
+      width: 685px;
+      height: 643px;
+
+    }
+    .hero-text {
+      position: absolute;
+      top: 124px;
+      left: 80px;
+      width: 1440px;
+      height: 362px;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+    .hero-title {
+      font-family: "Russo One", sans-serif;
+      font-weight: 400;
+      font-size: 80px;
+      line-height: 1;
+      color: #1C2B33;
+      text-align: center;
+      margin: 0;
+    }
+    .hero-subtitle {
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.4;
+      color: #1C2B33;
+      text-align: center;
+      margin: 0;
+    }
+    .hero-subtitle strong {
+      font-weight: 700;
+    }
+    .btn-cta {
+      display: inline-block;
+      border-radius: 16px;
+      padding: 20px 40px;
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+    }
+    .hero-products {
+      position: absolute;
+      top: 297px;
+      left: -27px;
+      width: 1670px;
+      height: 529px;
+      z-index: 1;
+    }
+    .timer-card {
+      position: relative;
+      z-index: 1;
+      max-width: 1196px;
+      margin: -80px auto 0;
+      padding: 60px 80px;
+      background: #FFFFFF;
+      border: 1px solid #E6ECF0;
+      border-radius: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .timer-top {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+    .timer-title {
+      font-family: "Russo One", sans-serif;
+      font-weight: 400;
+      font-size: 40px;
+      line-height: 1;
+      color: #1C2B33;
+      text-align: center;
+      margin: 0;
+    }
+    .timer-row {
+      display: flex;
+      justify-content: space-between;
+    }
+    .timer-segment {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 259px;
+      height: 60px;
+    }
+    .timer-segment:not(:last-child) {
+      border-right: 1px solid #E6ECF0;
+    }
+    .timer-number {
+      font-family: "Russo One", sans-serif;
+      font-weight: 400;
+      font-size: 60px;
+      line-height: 1;
+      color: #3E4B52;
+    }
+    .timer-unit {
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      line-height: 1.4;
+      color: #606A70;
+    }
+    .timer-cta {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 20px 40px;
+      border-radius: 16px;
+      background: #D2ECFA;
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 24px;
+      color: #2E4452;
+      text-align: center;
+      text-decoration: none;
+    }
+    .timer-cta:hover {
+      color: #2E4452;
+      background: #c3e4f7;
+    }
   </style>
 </head>
 <body>
   <div class="nav-bar {% if not user.is_authenticated %}nav-bar-guest{% endif %}">
     {% include "_nav.html" %}
   </div>
-  <div class="container">
-    {% if messages %}
+  {% if messages %}
+    <div class="container">
       <ul class="messages">
         {% for message in messages %}
           <li class="{{ message.tags }}">{{ message }}</li>
         {% endfor %}
       </ul>
-    {% endif %}
-    {% block content %}{% endblock %}
-  </div>
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
