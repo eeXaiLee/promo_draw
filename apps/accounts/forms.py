@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from django import forms
-from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import (
     PasswordResetTokenGenerator,
@@ -16,6 +16,27 @@ from .models import User
 from .rate_limit import get_client_ip, hit_rate_limit
 from .tasks import send_password_reset_email
 from .validators import normalize_phone
+
+
+class LoginForm(AuthenticationForm):
+    """Вход по email — те же поля Django, но с классами Bootstrap."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update(
+            {
+                "class": "form-control",
+                "autofocus": True,
+                "placeholder": "Введите email",
+            }
+        )
+        self.fields["password"].widget.attrs.update(
+            {
+                "class": "form-control",
+                "id": "login-password",
+                "placeholder": "••••••••",
+            }
+        )
 
 
 class RegistrationForm(forms.ModelForm):
