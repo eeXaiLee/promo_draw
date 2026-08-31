@@ -15,7 +15,6 @@
     :root {
       --brand-blue: #4DC6F4;
       --brand-orange: #F58220;
-      --color-bg: #E6ECF0;
       --color-card-bg: #F5F8FA;
       --color-heading: #25353D;
     }
@@ -91,7 +90,7 @@
       font-family: "Mulish", sans-serif;
       margin: 0;
       color: #1a1a1a;
-      background-color: var(--color-bg);
+      background-color: #F5F8FA;
     }
     .container {
       max-width: 480px;
@@ -473,6 +472,118 @@
       height: 34px;
       padding: 6px 14px;
       font-size: 14px;
+    }
+    .products-section {
+      max-width: 1440px;
+      margin: 100px auto 0;
+    }
+    .products-section .section-title {
+      text-align: left;
+    }
+    .products-subtitle {
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.4;
+      color: #1C2B33;
+      text-align: left;
+      margin: 0 0 40px;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 464px);
+      column-gap: 24px;
+      row-gap: 40px;
+      justify-content: center;
+    }
+    .product-card {
+      position: relative;
+      width: 464px;
+      height: 495px;
+      background: #F5F8FA;
+      box-sizing: border-box;
+    }
+    .product-image-block {
+      position: relative;
+      width: 464px;
+      height: 360px;
+      background: #D2ECFA;
+      border-radius: 32px;
+      overflow: hidden;
+    }
+    .product-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 20px;
+      background: #4DC6F4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Mulish", sans-serif;
+      font-weight: 900;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #FFFFFF;
+    }
+    .product-photo {
+      position: absolute;
+    }
+    .product-pack {
+      top: 98px;
+      left: 29px;
+      width: 405px;
+      height: 179px;
+    }
+    .product-bar {
+      top: 41px;
+      left: 285px;
+      width: auto;
+      height: 282px;
+      transform: rotate(20deg);
+    }
+    .product-photo-koto-pink-pack {
+      top: 20px;
+      left: 102px;
+      width: 144px;
+      height: 320px;
+    }
+    .product-photo-koto-pink-bar {
+      top: 50px;
+      left: 260px;
+      width: 135px;
+      height: auto;
+      transform: rotate(-13deg);
+    }
+    .product-photo-koto-blue {
+      top: 20px;
+      left: 102px;
+      width: 279px;
+      height: 320px;
+    }
+    .product-text {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .product-title {
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 1.4;
+      color: #1C2B33;
+      margin: 0;
+    }
+    .product-desc {
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 18px;
+      line-height: 1.4;
+      color: #2E4452;
+      margin: 0;
     }
   </style>
 </head>
