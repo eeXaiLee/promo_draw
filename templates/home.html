@@ -72,6 +72,70 @@
     {% endif %}
   </div>
 
+  <section class="win-section">
+    <h2 class="section-title">Как получить шанс на победу?</h2>
+    <div class="win-cards">
+      <div class="win-card">
+        <div class="win-card-text">
+          <div class="win-card-header">
+            <span class="win-badge">01</span>
+            <h3 class="win-card-title">Покупай</h3>
+          </div>
+          <p class="win-card-desc win-card-1-desc">
+            Приобретайте любимое мороженое «Протеин» бренда «Эскимос» в
+            любом магазине
+          </p>
+        </div>
+        <img
+          src="{% static 'img/win-card-1-choco.png' %}"
+          alt=""
+          class="win-card-img win-card-1-choco"
+        >
+        <img
+          src="{% static 'img/win-card-1-yellow.png' %}"
+          alt=""
+          class="win-card-img win-card-1-yellow"
+        >
+      </div>
+      <div class="win-card">
+        <div class="win-card-text">
+          <div class="win-card-header">
+            <span class="win-badge">02</span>
+            <h3 class="win-card-title">Регистрируйся</h3>
+          </div>
+          <p class="win-card-desc win-card-2-desc">
+            Зайдите в личный кабинет, зарегистрируйтесь и введите код,
+            указанный на палочке мороженого внутри упаковки
+          </p>
+        </div>
+        <img
+          src="{% static 'img/win-card-2.png' %}"
+          alt=""
+          class="win-card-img win-card-2-img"
+        >
+      </div>
+      <div class="win-card">
+        <div class="win-card-text">
+          <div class="win-card-header">
+            <span class="win-badge">03</span>
+            <h3 class="win-card-title">Побеждай!</h3>
+          </div>
+          <p class="win-card-desc win-card-3-desc">
+            Ваш код — это ваш шанс! Желаем вам удачи!
+          </p>
+          <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-pill win-card-btn">
+            Войти в ЛК
+          </a>
+        </div>
+        <img
+          src="{% static 'img/win-card-3.png' %}"
+          alt=""
+          class="win-card-img win-card-3-img"
+        >
+      </div>
+    </div>
+  </section>
+
   <script>
     (function () {
       function pluralize(n, one, few, many) {
