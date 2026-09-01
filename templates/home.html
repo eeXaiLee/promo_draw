@@ -572,6 +572,31 @@
     </div>
   </section>
 
+  <hr class="footer-divider">
+  <footer class="site-footer">
+    <div class="footer-top">
+      <a href="{% url 'home' %}" class="footer-logo">
+        <img src="{% static 'img/logo.svg' %}" alt="Эскимос">
+      </a>
+      <a href="https://t.me/" class="footer-telegram" aria-label="Telegram">
+        <img src="{% static 'img/telegram.svg' %}" alt="">
+      </a>
+    </div>
+    <div class="footer-links">
+      <div class="footer-links-row">
+        <a href="#">О нас</a>
+        <a href="#">Обработка персональных данных</a>
+        <a href="#">Пользовательское соглашение</a>
+        <a href="#">Правила программы лояльности</a>
+      </div>
+      <div class="footer-links-row">
+        <a href="#">Условия сервиса лояльности</a>
+        <a href="#">Не знаю другой пункт</a>
+        <a href="#">Не знаю другой пункт</a>
+      </div>
+    </div>
+  </footer>
+
   <script>
     (function () {
       function pluralize(n, one, few, many) {
