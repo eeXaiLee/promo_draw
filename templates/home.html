@@ -438,6 +438,33 @@
   </section>
   </div>
 
+  <section class="dashboard-section">
+    <img
+      src="{% static 'img/dashboard-laptop.png' %}"
+      alt=""
+      class="dashboard-image"
+    >
+    <div class="dashboard-text">
+      <h2 class="dashboard-title">Все ваши коды и шансы<br>— в личном кабинете</h2>
+      <div>
+        <h3 class="dashboard-subtitle">Функционал ЛК:</h3>
+        <ul class="dashboard-list">
+          <li>Регистрация участника</li>
+          <li>Ввод и хранение кодов</li>
+          <li>Автоматическая проверка кодов на валидность</li>
+          <li>Статистика</li>
+          <li>История участия</li>
+          <li>Обновление данных для получения приза</li>
+        </ul>
+      </div>
+      {% if user.is_authenticated %}
+        <a href="{% url 'accounts:dashboard' %}" class="btn-dashboard">В личный кабинет</a>
+      {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn-dashboard">В личный кабинет</a>
+      {% endif %}
+    </div>
+  </section>
+
   <script>
     (function () {
       function pluralize(n, one, few, many) {
