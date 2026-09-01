@@ -1052,6 +1052,75 @@
       width: 172px;
       height: auto;
     }
+    .faq-section {
+      width: 1440px;
+      max-width: 100%;
+      margin: 60px auto 0;
+      background: #D2ECFA;
+      border-radius: 40px;
+      padding: 32px;
+      box-sizing: border-box;
+    }
+    .faq-title {
+      font-family: "Russo One", sans-serif;
+      font-weight: 400;
+      font-size: 40px;
+      line-height: 1;
+      color: #1C2B33;
+      text-align: center;
+      margin: 0 0 24px;
+    }
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .faq-item {
+      background: #E6F6FF;
+      border-radius: 24px;
+      padding: 16px 24px;
+    }
+    .faq-item[open] {
+      padding-bottom: 24px;
+    }
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+      list-style: none;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      line-height: 1.4;
+      color: #2E4452;
+    }
+    .faq-question::-webkit-details-marker {
+      display: none;
+    }
+    .faq-arrow {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .faq-item[open] .faq-arrow {
+      transform: rotate(180deg);
+    }
+    .faq-divider {
+      margin: 12px 0 0;
+      border: none;
+      border-top: 2px dashed #E6ECF0;
+    }
+    .faq-answer {
+      margin: 12px 0 0;
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.2;
+      color: #425561;
+    }
   </style>
 </head>
 <body>
