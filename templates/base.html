@@ -736,10 +736,171 @@
     }
     .rules-bear {
       position: absolute;
-      top: -70px;
+      bottom: 0;
       left: 763px;
       width: 711px;
       height: 612px;
+    }
+    .winners-wrap {
+      width: 1600px;
+      max-width: 100%;
+      margin: 0 auto;
+      background: #FFFFFF;
+    }
+    .winners-section {
+      width: 1440px;
+      max-width: 100%;
+      margin: 0 auto;
+      background: #D2ECFA;
+      border-radius: 40px;
+      padding: 32px;
+      box-sizing: border-box;
+    }
+    .winners-title {
+      font-family: "Russo One", sans-serif;
+      font-weight: 400;
+      font-size: 40px;
+      line-height: 1;
+      color: #25353D;
+      text-align: center;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .winners-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 344px);
+      column-gap: 0;
+      row-gap: 16px;
+      width: 1376px;
+      max-width: 100%;
+      margin: 32px auto 0;
+      padding: 0;
+      list-style: none;
+    }
+    .winners-tab {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      border: none;
+      border-radius: 152px;
+      padding: 10px 24px;
+      background: transparent;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #62717A;
+      text-align: center;
+      cursor: default;
+    }
+    .winners-tab:hover {
+      background: #C4E4F5;
+    }
+    .winners-tab-active {
+      border-radius: 24px;
+      background: var(--brand-blue);
+      color: #FFFFFF;
+    }
+    .winners-tab-active:hover {
+      background: var(--brand-blue);
+    }
+    .winners-table-wrap {
+      margin-top: 32px;
+      background: #E6F6FF;
+      border-radius: 32px;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .winners-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 10px;
+      padding: 6px 12px 6px 56px;
+      background: #D2ECFA;
+    }
+    .winners-header-row span {
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #586E7A;
+    }
+    .winners-rows {
+      display: flex;
+      flex-direction: column;
+      margin-top: 16px;
+      max-height: 512px;
+      overflow-y: auto;
+      scrollbar-color: #C4E4F5 #DCF1FC;
+      scrollbar-width: thin;
+    }
+    .winners-rows::-webkit-scrollbar {
+      width: 6px;
+    }
+    .winners-rows::-webkit-scrollbar-track {
+      background: #DCF1FC;
+      border-radius: 4px;
+    }
+    .winners-rows::-webkit-scrollbar-thumb {
+      background: #C4E4F5;
+      border-radius: 4px;
+    }
+    .winners-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+    }
+    .winners-col-name {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      width: 220px;
+    }
+    .winners-name-text {
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #354D5C;
+    }
+    .winners-col-code {
+      width: 484px;
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #62717A;
+    }
+    .winners-col-phone {
+      width: 240px;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #586E7A;
+    }
+    .winners-col-prize {
+      width: 300px;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #354D5C;
+    }
+    .winners-avatar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 30px;
+      background: var(--brand-blue);
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
     }
   </style>
 </head>
