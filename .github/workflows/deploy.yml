@@ -96,7 +96,8 @@ jobs:
               -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" '
             set -e
             cd /opt/promo_draw
-            git pull
+            git fetch origin main
+            git reset --hard origin/main
             docker compose -f docker-compose.yml build
             docker compose -f docker-compose.yml up -d
             docker compose -f docker-compose.yml restart nginx
