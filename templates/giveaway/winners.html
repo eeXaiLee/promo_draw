@@ -7,14 +7,15 @@
   <h1>Победители розыгрыша</h1>
 
   {% if not draws %}
-    <p>Пока нет ни одного подведённого дня.</p>
+    <p>Пока нет ни одного подведённого розыгрыша.</p>
   {% else %}
     <nav class="tabs">
       {% for draw in draws %}
         <a
-          href="?date={{ draw.date|date:'Y-m-d' }}"
+          href="?period={{ draw.period_start|date:'Y-m-d' }}"
           class="{% if draw.pk == selected_draw.pk %}active{% endif %}"
-        >{{ draw.date|date:"d.m.Y" }}</a>
+        >{{ draw.period_start|date:"d.m.Y" }}–{{ draw.period_end|date:"d.m.Y" }}
+          {% if draw.kind == "super" %}(супер-розыгрыш){% endif %}</a>
       {% endfor %}
     </nav>
 
@@ -28,7 +29,7 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p>В этот день участников не было — победителей нет.</p>
+      <p>В этот период участников не было — победителей нет.</p>
     {% endif %}
   {% endif %}
 </div>

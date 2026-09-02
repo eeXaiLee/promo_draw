@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 
 from apps.accounts.models import User
-from apps.giveaway.models import DailyDraw, Prize, Winner
+from apps.giveaway.models import DrawKind, MonthlyDraw, Prize, Winner
 from apps.giveaway.services import finalize_draw, moscow_day_bounds
 from apps.promocodes.models import PromoCode
 
@@ -20,11 +20,17 @@ def _redeem(user: User, code: str, date: datetime.date) -> PromoCode:
     )
 
 
+def _monthly_draw(date: datetime.date, **kwargs: object) -> MonthlyDraw:
+    return MonthlyDraw.objects.create(
+        period_start=date, period_end=date, **kwargs
+    )
+
+
 def test_finalize_draw_picks_winners_from_redeemed_codes(
     two_prizes: list[Prize],
 ) -> None:
     """3 участника и 2 приза → победителей ровно 2, и это разные люди."""
-    draw = DailyDraw.objects.create(date=DRAW_DATE)
+    draw = _monthly_draw(DRAW_DATE)
     users = [
         User.objects.create_user(email=f"u{i}@example.com", password="x")
         for i in range(3)
@@ -45,8 +51,8 @@ def test_finalize_draw_picks_winners_from_redeemed_codes(
 def test_finalize_draw_manual_and_automatic_dont_double_finalize(
     two_prizes: list[Prize],
 ) -> None:
-    """Ручной запуск и авто-таска для одного дня не должны создать дубли."""
-    draw = DailyDraw.objects.create(date=DRAW_DATE)
+    """Ручной запуск и авто-таска для одного периода не создают дубли."""
+    draw = _monthly_draw(DRAW_DATE)
     users = [
         User.objects.create_user(email=f"u{i}@example.com", password="x")
         for i in range(3)
@@ -66,10 +72,10 @@ def test_finalize_draw_manual_and_automatic_dont_double_finalize(
     assert Winner.objects.filter(draw=draw).count() == 2
 
 
-def test_finalize_draw_excludes_users_who_already_won(
+def test_finalize_draw_excludes_users_who_already_won_same_kind(
     two_prizes: list[Prize],
 ) -> None:
-    """Победивший ранее не попадает в победители снова, даже с новым кодом."""
+    """Победивший ранее в том же виде розыгрыша не попадает снова."""
     already_won_user = User.objects.create_user(
         email="past_winner@example.com", password="x"
     )
@@ -79,16 +85,17 @@ def test_finalize_draw_excludes_users_who_already_won(
     ]
 
     past_date = DRAW_DATE - datetime.timedelta(days=1)
-    past_draw = DailyDraw.objects.create(date=past_date, is_finalized=True)
+    past_draw = _monthly_draw(past_date, is_finalized=True)
     past_code = _redeem(already_won_user, "PASTCODE", past_date)
     Winner.objects.create(
         draw=past_draw,
         prize=two_prizes[0],
         user=already_won_user,
+        kind=DrawKind.MONTHLY,
         promo_code=past_code,
     )
 
-    draw = DailyDraw.objects.create(date=DRAW_DATE)
+    draw = _monthly_draw(DRAW_DATE)
     _redeem(already_won_user, "TODAY001", DRAW_DATE)
     for i, user in enumerate(other_users):
         _redeem(user, f"TODAY10{i}", DRAW_DATE)
@@ -98,3 +105,38 @@ def test_finalize_draw_excludes_users_who_already_won(
     winner_user_ids = {w.user_id for w in winners}
     assert already_won_user.pk not in winner_user_ids
     assert winner_user_ids == {u.pk for u in other_users}
+
+
+def test_finalize_draw_super_includes_previous_monthly_winners(
+    two_prizes: list[Prize],
+) -> None:
+    """Победа в ежемесячном не исключает участие в супер-розыгрыше."""
+    for prize in two_prizes:
+        prize.kind = DrawKind.SUPER
+        prize.save(update_fields=["kind"])
+
+    monthly_winner = User.objects.create_user(
+        email="monthly_winner@example.com", password="x"
+    )
+    past_date = DRAW_DATE - datetime.timedelta(days=1)
+    past_draw = _monthly_draw(past_date, is_finalized=True)
+    past_code = _redeem(monthly_winner, "PASTCODE", past_date)
+    Winner.objects.create(
+        draw=past_draw,
+        prize=Prize.objects.create(title="Приз", kind=DrawKind.MONTHLY),
+        user=monthly_winner,
+        kind=DrawKind.MONTHLY,
+        promo_code=past_code,
+    )
+
+    super_draw = MonthlyDraw.objects.create(
+        period_start=past_date,
+        period_end=DRAW_DATE,
+        kind=DrawKind.SUPER,
+        prize_count=4,
+    )
+    _redeem(monthly_winner, "SUPRCODE", DRAW_DATE)
+
+    winners = finalize_draw(super_draw)
+
+    assert {w.user_id for w in winners} == {monthly_winner.pk}

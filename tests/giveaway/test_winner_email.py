@@ -6,20 +6,24 @@ from django.core import mail
 from django.utils import timezone
 
 from apps.accounts.models import User
-from apps.giveaway.models import DailyDraw, Prize, Winner
+from apps.giveaway.models import DrawKind, MonthlyDraw, Prize, Winner
 from apps.giveaway.tasks import resend_pending_winner_emails, send_winner_email
 from apps.promocodes.models import PromoCode
 
 
 def _create_winner(
-    user: User, prize: Prize, draw: DailyDraw, code: str
+    user: User, prize: Prize, draw: MonthlyDraw, code: str
 ) -> Winner:
     """Создаёт победителя с уже погашенным промокодом."""
     promo_code = PromoCode.objects.create(
         code=code, used_by=user, used_at=timezone.now()
     )
     return Winner.objects.create(
-        draw=draw, prize=prize, user=user, promo_code=promo_code
+        draw=draw,
+        prize=prize,
+        user=user,
+        kind=DrawKind.MONTHLY,
+        promo_code=promo_code,
     )
 
 
@@ -27,7 +31,10 @@ def test_send_winner_email_marks_sent_at(
     complete_user: User, two_prizes: list[Prize]
 ) -> None:
     """После успешной отправки у победителя проставляется email_sent_at."""
-    draw = DailyDraw.objects.create(date=datetime.date(2030, 2, 1))
+    draw_date = datetime.date(2030, 2, 1)
+    draw = MonthlyDraw.objects.create(
+        period_start=draw_date, period_end=draw_date
+    )
     winner = _create_winner(complete_user, two_prizes[0], draw, "WINR0001")
 
     send_winner_email(winner.pk)
@@ -41,7 +48,10 @@ def test_resend_pending_winner_emails_skips_already_sent(
     two_prizes: list[Prize],
 ) -> None:
     """Досылка трогает только победителей без email_sent_at."""
-    draw = DailyDraw.objects.create(date=datetime.date(2030, 2, 1))
+    draw_date = datetime.date(2030, 2, 1)
+    draw = MonthlyDraw.objects.create(
+        period_start=draw_date, period_end=draw_date
+    )
     already_sent_user = User.objects.create_user(
         email="sent@example.com", password="testpass123"
     )

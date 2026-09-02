@@ -1,0 +1,47 @@
+from __future__ import annotations
+
+from django.db import migrations
+
+TASK_NAME = "apps.analytics.tasks.record_yesterday_stats"
+
+
+def create_periodic_task(
+    apps: migrations.state.ProjectState, schema_editor: object
+) -> None:
+    CrontabSchedule = apps.get_model("django_celery_beat", "CrontabSchedule")
+    PeriodicTask = apps.get_model("django_celery_beat", "PeriodicTask")
+
+    schedule, _ = CrontabSchedule.objects.get_or_create(
+        minute="0",
+        hour="0",
+        day_of_week="*",
+        day_of_month="*",
+        month_of_year="*",
+        timezone="Europe/Moscow",
+    )
+    PeriodicTask.objects.get_or_create(
+        task=TASK_NAME,
+        defaults={
+            "name": "Статистика за прошедшие сутки",
+            "crontab": schedule,
+            "enabled": True,
+        },
+    )
+
+
+def remove_periodic_task(
+    apps: migrations.state.ProjectState, schema_editor: object
+) -> None:
+    PeriodicTask = apps.get_model("django_celery_beat", "PeriodicTask")
+    PeriodicTask.objects.filter(task=TASK_NAME).delete()
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("analytics", "0001_initial"),
+        ("django_celery_beat", "0019_alter_periodictasks_options"),
+    ]
+
+    operations = [
+        migrations.RunPython(create_periodic_task, remove_periodic_task),
+    ]
