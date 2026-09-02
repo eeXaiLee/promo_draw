@@ -9,7 +9,12 @@ from django.utils import timezone
 from promo_draw.celery import EMAIL_TASK_KWARGS
 
 from .models import Winner
-from .services import MOSCOW_TZ, finalize_draw, get_or_create_monthly_draw
+from .services import (
+    MOSCOW_TZ,
+    finalize_draw,
+    get_or_create_monthly_draw,
+    get_or_create_super_draw,
+)
 
 
 @shared_task
@@ -21,6 +26,13 @@ def finalize_monthly_draw() -> None:
     """
     today_msk = timezone.now().astimezone(MOSCOW_TZ).date()
     draw = get_or_create_monthly_draw(today_msk)
+    finalize_draw(draw)
+
+
+@shared_task
+def finalize_super_draw() -> None:
+    """Финализирует супер-розыгрыш — разовое событие в конце акции."""
+    draw = get_or_create_super_draw()
     finalize_draw(draw)
 
 

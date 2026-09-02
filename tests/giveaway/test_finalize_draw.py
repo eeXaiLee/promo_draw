@@ -48,6 +48,41 @@ def test_finalize_draw_picks_winners_from_redeemed_codes(
     assert len(winner_user_ids) == 2
 
 
+def test_finalize_draw_counts_codes_across_whole_period(
+    two_prizes: list[Prize],
+) -> None:
+    """Билетами становятся коды за весь период, а не только за один день —
+    и коды до/после периода в розыгрыш не попадают."""
+    period_start = datetime.date(2030, 3, 10)
+    period_end = datetime.date(2030, 4, 9)
+    draw = MonthlyDraw.objects.create(
+        period_start=period_start, period_end=period_end
+    )
+
+    in_period_users = [
+        User.objects.create_user(email=f"in{i}@example.com", password="x")
+        for i in range(2)
+    ]
+    _redeem(in_period_users[0], "STARTDAY", period_start)
+    _redeem(in_period_users[1], "ENDDAY01", period_end)
+
+    before_user = User.objects.create_user(
+        email="before@example.com", password="x"
+    )
+    _redeem(
+        before_user, "TOOEARLY", period_start - datetime.timedelta(days=1)
+    )
+    after_user = User.objects.create_user(
+        email="after@example.com", password="x"
+    )
+    _redeem(after_user, "TOOLATE1", period_end + datetime.timedelta(days=1))
+
+    winners = finalize_draw(draw)
+
+    winner_user_ids = {w.user_id for w in winners}
+    assert winner_user_ids == {u.pk for u in in_period_users}
+
+
 def test_finalize_draw_manual_and_automatic_dont_double_finalize(
     two_prizes: list[Prize],
 ) -> None:

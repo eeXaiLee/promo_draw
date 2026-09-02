@@ -127,3 +127,21 @@ def get_or_create_monthly_draw(today: datetime.date) -> MonthlyDraw:
         defaults={"prize_count": 2},
     )
     return draw
+
+
+CAMPAIGN_START = datetime.date(2026, 2, 9)
+CAMPAIGN_END = datetime.date(2026, 12, 31)
+SUPER_DRAW_PRIZE_COUNT = 4
+
+
+def get_or_create_super_draw() -> MonthlyDraw:
+    """Супер-розыгрыш — разовое событие в конце акции, билеты за весь
+    срок акции (09.02–31.12.2026), без исключения прошлых победителей
+    ежемесячных розыгрышей."""
+    draw, _ = MonthlyDraw.objects.get_or_create(
+        period_start=CAMPAIGN_START,
+        period_end=CAMPAIGN_END,
+        kind=DrawKind.SUPER,
+        defaults={"prize_count": SUPER_DRAW_PRIZE_COUNT},
+    )
+    return draw
