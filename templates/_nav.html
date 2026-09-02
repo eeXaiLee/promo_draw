@@ -13,9 +13,9 @@
 {% else %}
   <nav class="nav nav-guest">
     <div class="nav-links">
-      <a href="#">Контакты</a>
-      <a href="#">О нас</a>
-      <a href="#">Акции</a>
+      <a href="{% url 'contacts' %}">Контакты</a>
+      <a href="{% url 'about' %}">О нас</a>
+      <a href="{% url 'promotions' %}">Акции</a>
       <a href="{% url 'giveaway:winners' %}">Победители</a>
     </div>
     <a href="{% url 'home' %}" class="nav-logo">

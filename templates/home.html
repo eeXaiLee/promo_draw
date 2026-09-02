@@ -328,7 +328,7 @@
           <li>1 приз в 1 руки в одном розыгрыше</li>
         </ul>
       </div>
-      <a href="#" class="btn-rules">
+      <a href="{% static 'docs/rules.pdf' %}" target="_blank" class="btn-rules">
         СМОТРЕТЬ ВСЕ ПРАВИЛА
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -584,15 +584,15 @@
     </div>
     <div class="footer-links">
       <div class="footer-links-row">
-        <a href="#">О нас</a>
-        <a href="#">Обработка персональных данных</a>
-        <a href="#">Пользовательское соглашение</a>
-        <a href="#">Правила программы лояльности</a>
+        <a href="{% url 'about' %}">О нас</a>
+        <a href="{% url 'personal-data' %}">Обработка персональных данных</a>
+        <a href="{% url 'user-agreement' %}">Пользовательское соглашение</a>
+        <a href="{% url 'loyalty-rules' %}">Правила программы лояльности</a>
       </div>
       <div class="footer-links-row">
-        <a href="#">Условия сервиса лояльности</a>
-        <a href="#">Не знаю другой пункт</a>
-        <a href="#">Не знаю другой пункт</a>
+        <a href="{% url 'loyalty-terms' %}">Условия сервиса лояльности</a>
+        <a href="{% url 'organizer' %}">Реквизиты организатора</a>
+        <a href="{% url 'cookie-policy' %}">Политика cookie</a>
       </div>
     </div>
   </footer>
