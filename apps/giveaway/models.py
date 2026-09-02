@@ -35,8 +35,7 @@ class MonthlyDraw(models.Model):
 
     def __str__(self) -> str:
         return (
-            f"{self.period_start}–{self.period_end} "
-            f"({self.get_kind_display()})"
+            f"{self.period_start}–{self.period_end} ({self.get_kind_display()})"
         )
 
 

@@ -37,9 +37,7 @@ def test_view_only_staff_has_no_finalize_action(db) -> None:
 
 def test_staff_with_change_permission_has_finalize_action(db) -> None:
     """У сотрудника с правом на изменение действие доступно."""
-    editor = _staff_with_permissions(
-        "view_monthlydraw", "change_monthlydraw"
-    )
+    editor = _staff_with_permissions("view_monthlydraw", "change_monthlydraw")
     request = RequestFactory().get("/admin/giveaway/monthlydraw/")
     request.user = editor
     admin_instance = MonthlyDrawAdmin(MonthlyDraw, django_admin.site)

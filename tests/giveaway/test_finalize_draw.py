@@ -69,9 +69,7 @@ def test_finalize_draw_counts_codes_across_whole_period(
     before_user = User.objects.create_user(
         email="before@example.com", password="x"
     )
-    _redeem(
-        before_user, "TOOEARLY", period_start - datetime.timedelta(days=1)
-    )
+    _redeem(before_user, "TOOEARLY", period_start - datetime.timedelta(days=1))
     after_user = User.objects.create_user(
         email="after@example.com", password="x"
     )
