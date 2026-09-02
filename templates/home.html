@@ -346,94 +346,45 @@
   <section class="winners-section">
     <h2 class="winners-title">Победители розыгрышей</h2>
     <div class="winners-tabs">
-      <button type="button" class="winners-tab winners-tab-active">Январь</button>
-      <button type="button" class="winners-tab">Февраль</button>
-      <button type="button" class="winners-tab">Март</button>
-      <button type="button" class="winners-tab">Апрель</button>
-      <button type="button" class="winners-tab">Май</button>
-      <button type="button" class="winners-tab">Июнь</button>
-      <button type="button" class="winners-tab">Июль</button>
-      <button type="button" class="winners-tab">Август</button>
-      <button type="button" class="winners-tab">Сентябрь</button>
-      <button type="button" class="winners-tab">Октябрь</button>
-      <button type="button" class="winners-tab">Ноябрь</button>
-      <button type="button" class="winners-tab">Декабрь</button>
+      {% for month in winners_months %}
+        <button
+          type="button"
+          class="winners-tab{% if forloop.counter0 == winners_active_index %} winners-tab-active{% endif %}"
+          data-winners-tab="{{ forloop.counter0 }}"
+        >{{ month.label }}</button>
+      {% endfor %}
     </div>
     <div class="winners-table-wrap">
-      <div class="winners-header-row">
-        <span class="winners-col-name">Имя</span>
-        <span class="winners-col-code">Код</span>
-        <span class="winners-col-phone">Телефон</span>
-        <span class="winners-col-prize">Приз</span>
-      </div>
-      <div class="winners-rows">
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">М</span><span class="winners-name-text">Мария</span></div>
-          <span class="winners-col-code">Y3PL921MKRA29HJKL</span>
-          <span class="winners-col-phone">+7 (***) ***-01-23</span>
-          <span class="winners-col-prize">Google Home</span>
+      {% for month in winners_months %}
+        <div
+          class="winners-panel{% if forloop.counter0 == winners_active_index %} winners-panel-active{% endif %}"
+          data-winners-panel="{{ forloop.counter0 }}"
+        >
+          {% if month.draw %}
+            <div class="winners-header-row">
+              <span class="winners-col-name">Имя</span>
+              <span class="winners-col-code">Код</span>
+              <span class="winners-col-phone">Телефон</span>
+              <span class="winners-col-prize">Приз</span>
+            </div>
+            <div class="winners-rows">
+              {% for winner in month.draw.winners.all %}
+                <div class="winners-row">
+                  <div class="winners-col-name">
+                    <span class="winners-avatar">{{ winner.user.public_display_name|first }}</span>
+                    <span class="winners-name-text">{{ winner.user.public_display_name }}</span>
+                  </div>
+                  <span class="winners-col-code">{{ winner.promo_code.code }}</span>
+                  <span class="winners-col-phone">{{ winner.user.masked_phone }}</span>
+                  <span class="winners-col-prize">{{ winner.prize.title }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="winners-empty">Результаты появятся здесь после розыгрыша.</p>
+          {% endif %}
         </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">Д</span><span class="winners-name-text">Дмитрий</span></div>
-          <span class="winners-col-code">X9YT123HJKD45UJLM</span>
-          <span class="winners-col-phone">+7 (***) ***-01-23</span>
-          <span class="winners-col-prize">Apple HomePod</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">С</span><span class="winners-name-text">Светлана</span></div>
-          <span class="winners-col-code">A1B2C3D4E5F67890</span>
-          <span class="winners-col-phone">+7 (***) ***-01-23</span>
-          <span class="winners-col-prize">Amazon Echo</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">А</span><span class="winners-name-text">Анастасия</span></div>
-          <span class="winners-col-code">Z9XW846HJKA98LKJH</span>
-          <span class="winners-col-phone">+7 (***) ***-01-23</span>
-          <span class="winners-col-prize">Sonos One</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">И</span><span class="winners-name-text">Иван</span></div>
-          <span class="winners-col-code">V5N6M7K8L9H0GTYUI</span>
-          <span class="winners-col-phone">+7 (***) ***-01-23</span>
-          <span class="winners-col-prize">Bose Home Speaker</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">О</span><span class="winners-name-text">Ольга</span></div>
-          <span class="winners-col-code">Q1W2E3R4T5Y6U7I8O</span>
-          <span class="winners-col-phone">+7 (***) ***-01-23</span>
-          <span class="winners-col-prize">Harman Kardon Citation</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">С</span><span class="winners-name-text">Сергей</span></div>
-          <span class="winners-col-code">M1N2B3V4C5X6Z7L8K</span>
-          <span class="winners-col-phone">+7 (***) ***-01-23</span>
-          <span class="winners-col-prize">Lenovo Smart Clock</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">Т</span><span class="winners-name-text">Татьяна</span></div>
-          <span class="winners-col-code">P4Q5R6S7T8U9V0W1X</span>
-          <span class="winners-col-phone">+7 (***) ***-01-23</span>
-          <span class="winners-col-prize">JBL Link Portable</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">А</span><span class="winners-name-text">Алексей</span></div>
-          <span class="winners-col-code">W2E3R4T5Y6U7I8O9P</span>
-          <span class="winners-col-phone">+7 (***) ***-45-67</span>
-          <span class="winners-col-prize">Sony SRS-XB23</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">М</span><span class="winners-name-text">Мария</span></div>
-          <span class="winners-col-code">H1G2F3D4S5A6J7K8L</span>
-          <span class="winners-col-phone">+7 (***) ***-89-01</span>
-          <span class="winners-col-prize">Bose SoundLink Flex</span>
-        </div>
-        <div class="winners-row">
-          <div class="winners-col-name"><span class="winners-avatar">И</span><span class="winners-name-text">Игорь</span></div>
-          <span class="winners-col-code">M1N2B3V4C5X6Z7Q8W</span>
-          <span class="winners-col-phone">+7 (***) ***-12-34</span>
-          <span class="winners-col-prize">Anker Soundcore 3</span>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </section>
   </div>
@@ -671,6 +622,29 @@
 
       tick();
       setInterval(tick, 1000);
+    })();
+
+    (function () {
+      var tabs = document.querySelectorAll("[data-winners-tab]");
+      var panels = document.querySelectorAll("[data-winners-panel]");
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          tabs.forEach(function (t) {
+            t.classList.remove("winners-tab-active");
+          });
+          panels.forEach(function (p) {
+            p.classList.remove("winners-panel-active");
+          });
+          tab.classList.add("winners-tab-active");
+          var target = document.querySelector(
+            '[data-winners-panel="' + tab.dataset.winnersTab + '"]'
+          );
+          if (target) {
+            target.classList.add("winners-panel-active");
+          }
+        });
+      });
     })();
   </script>
 {% endblock %}
