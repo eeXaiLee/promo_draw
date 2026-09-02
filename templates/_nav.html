@@ -1,14 +1,32 @@
 {% load static %}
 {% if user.is_authenticated %}
-  <nav class="nav">
-    <a href="{% url 'home' %}">Главная</a>
-    <a href="{% url 'accounts:dashboard' %}">Личный кабинет</a>
-    <a href="{% url 'promocodes:redeem' %}">Ввести промокод</a>
-    <a href="{% url 'giveaway:winners' %}">Победители</a>
-    <form method="post" action="{% url 'accounts:logout' %}">
-      {% csrf_token %}
-      <button type="submit">Выйти</button>
-    </form>
+  <nav class="nav nav-guest">
+    <div class="nav-links">
+      <a href="{% url 'home' %}">Главная</a>
+      <a href="{% url 'accounts:dashboard' %}">Личный кабинет</a>
+      <a href="{% url 'promocodes:redeem' %}">Ввести промокод</a>
+      <a href="{% url 'giveaway:winners' %}">Победители</a>
+    </div>
+    <a href="{% url 'home' %}" class="nav-logo">
+      <img src="{% static 'img/shared/logo.svg' %}" alt="Эскимос">
+    </a>
+    <div class="nav-actions">
+      <details class="nav-user">
+        <summary class="nav-user-trigger">
+          <span class="nav-user-name">{{ user.public_display_name }}</span>
+          <span class="nav-user-avatar">{{ user.public_display_name|first }}</span>
+          <svg class="nav-user-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M4 7.5L10 13L16 7.5" stroke="#1C2B33" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="nav-user-menu">
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="nav-user-logout">Выйти</button>
+          </form>
+        </div>
+      </details>
+    </div>
   </nav>
 {% else %}
   <nav class="nav nav-guest">

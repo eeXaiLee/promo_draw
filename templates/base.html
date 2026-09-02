@@ -124,7 +124,7 @@
     .winners { padding-left: 1.2rem; }
     .nav-bar {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       border-bottom: 1px solid #e0e0e0;
       padding: 1rem;
     }
@@ -171,7 +171,7 @@
       gap: 24px;
       justify-self: start;
     }
-    .nav-links a {
+    .nav .nav-links a {
       font-family: "Mulish", sans-serif;
       font-weight: 500;
       font-size: 24px;
@@ -205,6 +205,71 @@
       font-weight: 700;
       font-size: 20px;
       line-height: 1.4;
+    }
+    .nav-user {
+      position: relative;
+    }
+    .nav-user-trigger {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      list-style: none;
+      cursor: pointer;
+    }
+    .nav-user-trigger::-webkit-details-marker {
+      display: none;
+    }
+    .nav-user-name {
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.4;
+      color: #1C2B33;
+    }
+    .nav-user-avatar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--brand-blue);
+      color: #FFFFFF;
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .nav-user-arrow {
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .nav-user[open] .nav-user-arrow {
+      transform: rotate(180deg);
+    }
+    .nav-user-menu {
+      position: absolute;
+      top: calc(100% + 12px);
+      right: 0;
+      min-width: 160px;
+      background: #FFFFFF;
+      border: 1px solid #E6ECF0;
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 0 8px 24px rgba(28, 43, 51, 0.12);
+      z-index: 2;
+    }
+    .nav .nav-user-menu .nav-user-logout {
+      display: block;
+      width: 100%;
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 18px;
+    }
+    .nav-user-logout:hover {
+      background: #F5F8FA;
     }
     .hero {
       position: relative;
@@ -1184,7 +1249,7 @@
   </style>
 </head>
 <body>
-  <div class="nav-bar {% if not user.is_authenticated %}nav-bar-guest{% endif %}">
+  <div class="nav-bar nav-bar-guest">
     {% include "_nav.html" %}
   </div>
   {% if messages %}
