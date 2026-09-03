@@ -62,7 +62,7 @@
       </div>
     </div>
     {% if user.is_authenticated %}
-      <a href="{% url 'promocodes:redeem' %}" class="btn timer-cta">
+      <a href="{% url 'accounts:dashboard' %}" class="btn timer-cta">
         Активировать код
       </a>
     {% else %}

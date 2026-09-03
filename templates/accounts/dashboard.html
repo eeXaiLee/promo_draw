@@ -32,5 +32,18 @@
   {% endif %}
 
   <p><a href="{% url 'accounts:password_change' %}">Сменить пароль</a></p>
+
+  <h2>Ввести промокод</h2>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <label for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+    {{ form.code }}
+    {% if form.code.errors %}
+      <ul class="errors">
+        {% for error in form.code.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    <button type="submit">Зарегистрировать код</button>
+  </form>
 </div>
 {% endblock %}

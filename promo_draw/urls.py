@@ -7,7 +7,6 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("admin/", admin.site.urls),
     path("accounts/", include("apps.accounts.urls")),
-    path("promo/", include("apps.promocodes.urls")),
     path("winners/", include("apps.giveaway.urls")),
     path("about/", views.stub_view("about"), name="about"),
     path("contacts/", views.stub_view("contacts"), name="contacts"),

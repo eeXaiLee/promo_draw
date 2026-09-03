@@ -12,6 +12,9 @@ from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, UpdateView
 
+from apps.promocodes.forms import PromoCodeForm
+from apps.promocodes.services import redeem_code
+
 from .forms import ProfileForm, RegistrationForm
 from .models import User
 from .rate_limit import get_client_ip, hit_rate_limit
@@ -76,7 +79,22 @@ def confirm_email(
 
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
-    return render(request, "accounts/dashboard.html")
+    """Личный кабинет — сюда же встроен ввод промокода."""
+    user = request.user
+    assert isinstance(user, User)
+
+    form = PromoCodeForm()
+    if request.method == "POST":
+        form = PromoCodeForm(request.POST)
+        if form.is_valid():
+            result = redeem_code(user, form.cleaned_data["code"])
+            if result.success:
+                messages.success(request, result.message)
+            else:
+                messages.error(request, result.message)
+            return redirect("accounts:dashboard")
+
+    return render(request, "accounts/dashboard.html", {"form": form})
 
 
 @login_required
