@@ -9,6 +9,9 @@ from django.utils import timezone
 
 from .validators import phone_validator, validate_birth_date
 
+# Разовое случайное смещение для публичного ID (id = OFFSET + pk)
+PUBLIC_ID_OFFSET = 483_916_207
+
 
 class UserManager(BaseUserManager["User"]):
     """Создаёт пользователей по email вместо username."""
@@ -55,6 +58,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(
         max_length=20, blank=True, validators=[phone_validator]
     )
+    address = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        verbose_name="адрес доставки приза",
+    )
+    public_id = models.BigIntegerField(
+        null=True, blank=True, unique=True, editable=False
+    )
 
     personal_data_consent = models.BooleanField(default=False)
     email_confirmed = models.BooleanField(default=False)
@@ -75,6 +87,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return self.email
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        super().save(*args, **kwargs)
+        if self.public_id is None:
+            self.public_id = PUBLIC_ID_OFFSET + self.pk
+            super().save(update_fields=["public_id"])
 
     def get_full_name(self) -> str:
         parts = [self.last_name, self.first_name, self.patronymic]
