@@ -496,30 +496,7 @@
     </div>
   </section>
 
-  <hr class="footer-divider">
-  <footer class="site-footer">
-    <div class="footer-top">
-      <a href="{% url 'home' %}" class="footer-logo">
-        <img src="{% static 'img/shared/logo.svg' %}" alt="Эскимос">
-      </a>
-      <a href="https://t.me/eeXaiLee" class="footer-telegram" aria-label="Telegram">
-        <img src="{% static 'img/shared/telegram.svg' %}" alt="">
-      </a>
-    </div>
-    <div class="footer-links">
-      <div class="footer-links-row">
-        <a href="{% url 'about' %}">О нас</a>
-        <a href="{% url 'personal-data' %}">Обработка персональных данных</a>
-        <a href="{% url 'user-agreement' %}">Пользовательское соглашение</a>
-        <a href="{% url 'loyalty-rules' %}">Правила программы лояльности</a>
-      </div>
-      <div class="footer-links-row">
-        <a href="{% url 'loyalty-terms' %}">Условия сервиса лояльности</a>
-        <a href="{% url 'organizer' %}">Реквизиты организатора</a>
-        <a href="{% url 'cookie-policy' %}">Политика cookie</a>
-      </div>
-    </div>
-  </footer>
+  {% include "_site_footer.html" %}
 
   <script>
     (function () {
