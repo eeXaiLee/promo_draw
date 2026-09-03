@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import datetime
 import secrets
+from dataclasses import dataclass
 from zoneinfo import ZoneInfo
 
 from django.db import transaction
+from django.template.defaultfilters import date as format_date
 
 from apps.accounts.models import User
 from apps.promocodes.models import PromoCode
@@ -145,3 +147,114 @@ def get_or_create_super_draw() -> MonthlyDraw:
         defaults={"prize_count": SUPER_DRAW_PRIZE_COUNT},
     )
     return draw
+
+
+def _monthly_period_for_date(
+    day: datetime.date,
+) -> tuple[datetime.date, datetime.date]:
+    """Ежемесячный период, в который попадает дата."""
+    if day.day >= 10:
+        start_month, start_year = day.month, day.year
+    else:
+        start_month, start_year = (
+            (12, day.year - 1) if day.month == 1 else (day.month - 1, day.year)
+        )
+    period_start = datetime.date(start_year, start_month, 10)
+    end_month, end_year = (
+        (1, start_year + 1)
+        if start_month == 12
+        else (start_month + 1, start_year)
+    )
+    period_end = datetime.date(end_year, end_month, 9)
+    return period_start, period_end
+
+
+def _draw_display_name(period_end: datetime.date, kind: str) -> str:
+    """Название акции для колонки «Акция» в «Моих кодах»."""
+    if kind == DrawKind.SUPER:
+        return f"Супер-розыгрыш {period_end.year}"
+    return f"Розыгрыш за {format_date(period_end, 'F Y')}"
+
+
+CODE_STATUS_LABELS = {
+    "pending": "Ожидание",
+    "won": "Выиграл",
+    "no_win": "Без выигрыша",
+}
+
+
+@dataclass
+class UserCodeRow:
+    """Одна строка в таблице «Мои коды»."""
+
+    code: str
+    used_at: datetime.datetime
+    campaign: str
+    status: str
+    status_display: str
+
+
+@dataclass
+class UserCodesSummary:
+    """Список кодов пользователя с готовыми счётчиками по статусам."""
+
+    rows: list[UserCodeRow]
+    pending_count: int
+    won_count: int
+    no_win_count: int
+
+
+def list_user_codes(user: User) -> UserCodesSummary:
+    """Промокоды пользователя со статусом каждого — для «Моих кодов» в ЛК."""
+    codes = PromoCode.objects.filter(
+        used_by=user, used_at__isnull=False
+    ).order_by("-used_at")
+    winners_by_code = {
+        winner.promo_code_id: winner
+        for winner in Winner.objects.filter(
+            promo_code__used_by=user
+        ).select_related("draw")
+    }
+    monthly_draws_by_period = {
+        (draw.period_start, draw.period_end): draw
+        for draw in MonthlyDraw.objects.filter(kind=DrawKind.MONTHLY)
+    }
+
+    rows: list[UserCodeRow] = []
+    pending_count = won_count = no_win_count = 0
+    for promo_code in codes:
+        assert promo_code.used_at is not None
+        winner = winners_by_code.get(promo_code.pk)
+        if winner is not None:
+            status = "won"
+            won_count += 1
+            campaign = _draw_display_name(
+                winner.draw.period_end, winner.draw.kind
+            )
+        else:
+            used_date = promo_code.used_at.astimezone(MOSCOW_TZ).date()
+            period_start, period_end = _monthly_period_for_date(used_date)
+            draw = monthly_draws_by_period.get((period_start, period_end))
+            campaign = _draw_display_name(period_end, DrawKind.MONTHLY)
+            if draw is not None and draw.is_finalized:
+                status = "no_win"
+                no_win_count += 1
+            else:
+                status = "pending"
+                pending_count += 1
+        rows.append(
+            UserCodeRow(
+                code=promo_code.code,
+                used_at=promo_code.used_at,
+                campaign=campaign,
+                status=status,
+                status_display=CODE_STATUS_LABELS[status],
+            )
+        )
+
+    return UserCodesSummary(
+        rows=rows,
+        pending_count=pending_count,
+        won_count=won_count,
+        no_win_count=no_win_count,
+    )
