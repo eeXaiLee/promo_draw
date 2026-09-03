@@ -204,6 +204,38 @@ class UserCodesSummary:
     no_win_count: int
 
 
+def winners_months_context() -> dict[str, object]:
+    """Данные для блока «Победители»: все 12 месяцев акции с вкладками.
+
+    Там, где розыгрыш уже прошёл — реальные победители, где ещё нет — пусто.
+    Используется и на главной странице, и в личном кабинете.
+    """
+    draws_by_month = {
+        draw.period_end.month: draw
+        for draw in (
+            MonthlyDraw.objects.filter(kind=DrawKind.MONTHLY, is_finalized=True)
+            .order_by("period_end")
+            .prefetch_related(
+                "winners__prize", "winners__user", "winners__promo_code"
+            )
+        )
+    }
+    winners_months = [
+        {
+            "label": format_date(datetime.date(2026, month, 1), "F"),
+            "draw": draws_by_month.get(month),
+        }
+        for month in range(1, 13)
+    ]
+    winners_active_index = next(
+        (i for i, month in enumerate(winners_months) if month["draw"]), 0
+    )
+    return {
+        "winners_months": winners_months,
+        "winners_active_index": winners_active_index,
+    }
+
+
 def list_user_codes(user: User) -> UserCodesSummary:
     """Промокоды пользователя со статусом каждого — для «Моих кодов» в ЛК."""
     codes = PromoCode.objects.filter(

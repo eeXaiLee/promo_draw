@@ -342,51 +342,8 @@
     >
   </section>
 
-  <div class="winners-wrap">
-  <section class="winners-section">
-    <h2 class="winners-title">Победители розыгрышей</h2>
-    <div class="winners-tabs">
-      {% for month in winners_months %}
-        <button
-          type="button"
-          class="winners-tab{% if forloop.counter0 == winners_active_index %} winners-tab-active{% endif %}"
-          data-winners-tab="{{ forloop.counter0 }}"
-        >{{ month.label }}</button>
-      {% endfor %}
-    </div>
-    <div class="winners-table-wrap">
-      {% for month in winners_months %}
-        <div
-          class="winners-panel{% if forloop.counter0 == winners_active_index %} winners-panel-active{% endif %}"
-          data-winners-panel="{{ forloop.counter0 }}"
-        >
-          {% if month.draw %}
-            <div class="winners-header-row">
-              <span class="winners-col-name">Имя</span>
-              <span class="winners-col-code">Код</span>
-              <span class="winners-col-phone">Телефон</span>
-              <span class="winners-col-prize">Приз</span>
-            </div>
-            <div class="winners-rows">
-              {% for winner in month.draw.winners.all %}
-                <div class="winners-row">
-                  <div class="winners-col-name">
-                    <span class="winners-avatar">{{ winner.user.public_display_name|first }}</span>
-                    <span class="winners-name-text">{{ winner.user.public_display_name }}</span>
-                  </div>
-                  <span class="winners-col-code">{{ winner.promo_code.code }}</span>
-                  <span class="winners-col-phone">{{ winner.user.masked_phone }}</span>
-                  <span class="winners-col-prize">{{ winner.prize.title }}</span>
-                </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <p class="winners-empty">Результаты появятся здесь после розыгрыша.</p>
-          {% endif %}
-        </div>
-      {% endfor %}
-    </div>
-  </section>
+  <div class="winners-page-band">
+    {% include "_winners_months.html" %}
   </div>
 
   <section class="dashboard-section">
@@ -624,27 +581,5 @@
       setInterval(tick, 1000);
     })();
 
-    (function () {
-      var tabs = document.querySelectorAll("[data-winners-tab]");
-      var panels = document.querySelectorAll("[data-winners-panel]");
-
-      tabs.forEach(function (tab) {
-        tab.addEventListener("click", function () {
-          tabs.forEach(function (t) {
-            t.classList.remove("winners-tab-active");
-          });
-          panels.forEach(function (p) {
-            p.classList.remove("winners-panel-active");
-          });
-          tab.classList.add("winners-tab-active");
-          var target = document.querySelector(
-            '[data-winners-panel="' + tab.dataset.winnersTab + '"]'
-          );
-          if (target) {
-            target.classList.add("winners-panel-active");
-          }
-        });
-      });
-    })();
   </script>
 {% endblock %}

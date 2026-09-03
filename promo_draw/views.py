@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import datetime
 from typing import Callable
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from django.template.defaultfilters import date as format_date
 from django.views.generic import TemplateView
 
-from apps.giveaway.models import DrawKind, MonthlyDraw
+from apps.giveaway.services import winners_months_context
 
 STUB_PAGES: dict[str, tuple[str, str]] = {
     "about": (
@@ -55,39 +53,8 @@ STUB_PAGES: dict[str, tuple[str, str]] = {
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    """Стартовая страница — коротко про акцию и ссылки дальше.
-
-    Блок победителей показывает все 12 месяцев акции: там, где розыгрыш
-    уже прошёл — реальные победители, где ещё нет — пусто.
-    """
-    draws_by_month = {
-        draw.period_end.month: draw
-        for draw in (
-            MonthlyDraw.objects.filter(kind=DrawKind.MONTHLY, is_finalized=True)
-            .order_by("period_end")
-            .prefetch_related(
-                "winners__prize", "winners__user", "winners__promo_code"
-            )
-        )
-    }
-    winners_months = [
-        {
-            "label": format_date(datetime.date(2026, month, 1), "F"),
-            "draw": draws_by_month.get(month),
-        }
-        for month in range(1, 13)
-    ]
-    winners_active_index = next(
-        (i for i, month in enumerate(winners_months) if month["draw"]), 0
-    )
-    return render(
-        request,
-        "home.html",
-        {
-            "winners_months": winners_months,
-            "winners_active_index": winners_active_index,
-        },
-    )
+    """Стартовая страница — коротко про акцию и ссылки дальше."""
+    return render(request, "home.html", winners_months_context())
 
 
 def stub_view(slug: str) -> Callable[..., HttpResponse]:

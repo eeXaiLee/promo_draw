@@ -19,7 +19,11 @@ class PromoCodeForm(forms.Form):
         label="Промокод",
         max_length=PROMO_CODE_LENGTH,
         widget=forms.TextInput(
-            attrs={"placeholder": "ABCD1234", "autocomplete": "off"}
+            attrs={
+                "placeholder": "XXXXXXXXXXXXXXXX",
+                "autocomplete": "off",
+                "class": "dashboard-code-input",
+            }
         ),
         error_messages={
             "required": "Введите промокод.",

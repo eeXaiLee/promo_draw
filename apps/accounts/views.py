@@ -12,6 +12,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, UpdateView
 
+from apps.giveaway.services import list_user_codes, winners_months_context
 from apps.promocodes.forms import PromoCodeForm
 from apps.promocodes.services import redeem_code
 
@@ -94,7 +95,12 @@ def dashboard(request: HttpRequest) -> HttpResponse:
                 messages.error(request, result.message)
             return redirect("accounts:dashboard")
 
-    return render(request, "accounts/dashboard.html", {"form": form})
+    context: dict[str, object] = {
+        "form": form,
+        "codes": list_user_codes(user),
+        **winners_months_context(),
+    }
+    return render(request, "accounts/dashboard.html", context)
 
 
 @login_required
