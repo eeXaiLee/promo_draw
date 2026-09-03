@@ -1,0 +1,20 @@
+{% load static %}
+<nav class="account-nav">
+  <a href="{% url 'home' %}" class="account-nav-logo">
+    <img src="{% static 'img/shared/logo.svg' %}" alt="Эскимос">
+  </a>
+  <div class="account-nav-pills">
+    <a
+      href="{% url 'accounts:dashboard' %}"
+      class="account-nav-pill{% if active == 'dashboard' %} account-nav-pill-active{% endif %}"
+    >Главная</a>
+    <a
+      href="{% url 'accounts:profile' %}"
+      class="account-nav-pill{% if active == 'profile' %} account-nav-pill-active{% endif %}"
+    >Профиль</a>
+    <a href="{% static 'docs/rules.pdf' %}" target="_blank" class="account-nav-pill">Правила</a>
+  </div>
+  <div class="account-nav-actions">
+    {% include "_nav_user_menu.html" %}
+  </div>
+</nav>
