@@ -683,6 +683,84 @@
       font-size: 20px;
       color: #62717A;
     }
+    .account-data-banner {
+      position: relative;
+      width: 1280px;
+      height: 540px;
+      max-width: 100%;
+      margin: 32px auto 0;
+      border-radius: 40px;
+      background: radial-gradient(75.46% 105.93% at 50% 100%, #2F3C4B 0%, #21242A 100%);
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .account-data-banner-bear {
+      position: absolute;
+      top: -4px;
+      left: -32px;
+      width: 597px;
+      height: auto;
+    }
+    .account-data-banner-text {
+      position: absolute;
+      top: 40px;
+      left: 519px;
+      width: 676px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .account-data-banner-title {
+      font-family: "Russo One", sans-serif;
+      font-weight: 400;
+      font-size: 44px;
+      line-height: 1.1;
+      color: #F5F8FA;
+      margin: 0;
+    }
+    .account-data-banner-list {
+      margin: 0;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .account-data-banner-list li {
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #F5F8FA;
+    }
+    .account-data-banner-note {
+      position: absolute;
+      top: 410px;
+      left: 519px;
+      width: 741px;
+      height: 90px;
+      box-sizing: border-box;
+      border-radius: 20px;
+      padding: 12px 16px;
+      background: radial-gradient(107.02% 344.34% at 0.54% -6.11%, rgba(186, 236, 255, 0.12) 0%, rgba(77, 198, 244, 0.12) 80.88%);
+      border: 2px solid rgba(77, 198, 244, 0.24);
+    }
+    .account-data-banner-note p {
+      margin: 0;
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.4;
+      color: #F5F8FA;
+    }
+    .account-data-banner-shield {
+      float: right;
+      shape-outside: url('{% static "img/home/data-banner-shield.png" %}');
+      shape-image-threshold: 0.5;
+      margin: -14px -18px 8px 16px;
+      width: 160px;
+      height: 104px;
+      object-fit: contain;
+    }
     .hero {
       position: relative;
       width: 1600px;
