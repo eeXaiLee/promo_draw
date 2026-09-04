@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
 {% block title %}Вход — promo_draw{% endblock %}
+{% block body_class %}body-auth{% endblock %}
 
 {% block content %}
-  <div class="card mx-auto" style="max-width: 628px;">
+  <div class="card auth-card mx-auto">
     <div class="card-body p-4">
-      <h1 class="h4 fw-bold text-center mb-0">Вход в систему</h1>
+      <h1 class="auth-title">Вход в систему</h1>
 
-      <form method="post" novalidate>
+      <form method="post" novalidate class="auth-form">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -36,7 +37,13 @@
             class="password-toggle is-hidden"
             aria-label="Показать пароль"
             data-target="{{ form.password.id_for_label }}"
-          ><span class="eye-icon">👁</span></button>
+          >
+            <svg class="eye-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="#62717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="10" cy="10" r="2.5" stroke="#62717A" stroke-width="1.5"/>
+              <path class="eye-slash-line" d="M3 17 17 3" stroke="#62717A" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
           {% if form.password.errors %}
             <div class="text-danger small mt-1">
               {% for error in form.password.errors %}{{ error }}{% endfor %}
@@ -61,7 +68,7 @@
           </label>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100">Войти</button>
+        <button type="submit" class="auth-submit">Войти</button>
       </form>
 
       <p class="text-center mb-0">
@@ -69,6 +76,8 @@
       </p>
     </div>
   </div>
+
+  {% include "_site_footer.html" %}
 
   <script>
     document.querySelectorAll(".password-toggle").forEach(function (btn) {
@@ -83,5 +92,18 @@
         );
       });
     });
+
+    (function () {
+      var form = document.querySelector(".auth-form");
+      var submitButton = document.querySelector(".auth-submit");
+      if (!form || !submitButton) {
+        return;
+      }
+      function markDirty() {
+        submitButton.classList.add("auth-submit-active");
+      }
+      form.addEventListener("input", markDirty);
+      form.addEventListener("change", markDirty);
+    })();
   </script>
 {% endblock %}
