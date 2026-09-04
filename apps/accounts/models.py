@@ -69,6 +69,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
 
     personal_data_consent = models.BooleanField(default=False)
+    marketing_consent = models.BooleanField(default=True)
     email_confirmed = models.BooleanField(default=False)
     notify_promo_registered = models.BooleanField(default=True)
 

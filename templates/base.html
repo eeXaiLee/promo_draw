@@ -138,6 +138,27 @@
       background: var(--brand-orange);
       color: #FFFFFF;
     }
+    .auth-checkboxes {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .auth-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .auth-checkbox input {
+      margin-top: 3px;
+    }
+    .auth-checkbox label {
+      margin: 0;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 1.2;
+      color: #354D5C;
+    }
     html {
       overflow-y: scroll;
     }
@@ -1841,6 +1862,9 @@
       border: none;
       border-top: 2px dashed #E6ECF0;
       opacity: 1;
+    }
+    .body-auth .footer-divider {
+      border-top-color: #CED3D6;
     }
     .site-footer {
       width: 1440px;

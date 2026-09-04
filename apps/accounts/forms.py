@@ -42,18 +42,34 @@ class LoginForm(AuthenticationForm):
 class RegistrationForm(forms.ModelForm):
     """Регистрация: email, пароль дважды, согласие на обработку данных."""
 
-    password1 = forms.CharField(label="Пароль", widget=forms.PasswordInput)
+    password1 = forms.CharField(
+        label="Пароль",
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control", "placeholder": "••••••••"}
+        ),
+    )
     password2 = forms.CharField(
-        label="Повторите пароль", widget=forms.PasswordInput
+        label="Повторите пароль",
+        widget=forms.PasswordInput(
+            attrs={"class": "form-control", "placeholder": "••••••••"}
+        ),
     )
 
     class Meta:
         model = User
-        fields = ("email", "personal_data_consent")
+        fields = ("email", "marketing_consent", "personal_data_consent")
         labels = {
             "email": "Email",
+            "marketing_consent": (
+                "Хочу получать полезные письма и информацию об акциях"
+            ),
             "personal_data_consent": (
                 "Даю согласие на обработку персональных данных"
+            ),
+        }
+        widgets = {
+            "email": forms.EmailInput(
+                attrs={"class": "form-control", "placeholder": "Введите email"}
             ),
         }
 

@@ -1,63 +1,137 @@
 {% extends "base.html" %}
 
 {% block title %}Регистрация — promo_draw{% endblock %}
+{% block body_class %}body-auth{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h1>Регистрация</h1>
+  <div class="card auth-card mx-auto">
+    <div class="card-body p-4">
+      <h1 class="auth-title">Регистрация</h1>
 
-  <form method="post" novalidate>
-    {% csrf_token %}
+      <form method="post" novalidate class="auth-form">
+        {% csrf_token %}
 
-    {% if form.non_field_errors %}
-      <ul class="errors">
-        {% for error in form.non_field_errors %}
-          <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger py-2">
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-    <label for="{{ form.email.id_for_label }}">Email</label>
-    {{ form.email }}
-    {% if form.email.errors %}
-      <ul class="errors">
-        {% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+        <div class="field-floating">
+          <label for="{{ form.email.id_for_label }}">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="text-danger small mt-1">
+              {% for error in form.email.errors %}{{ error }}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
 
-    <label for="{{ form.password1.id_for_label }}">Пароль</label>
-    {{ form.password1 }}
-    {% if form.password1.errors %}
-      <ul class="errors">
-        {% for error in form.password1.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+        <div class="field-floating field-password">
+          <label for="{{ form.password1.id_for_label }}">Пароль</label>
+          {{ form.password1 }}
+          <button
+            type="button"
+            class="password-toggle is-hidden"
+            aria-label="Показать пароль"
+            data-target="{{ form.password1.id_for_label }}"
+          >
+            <svg class="eye-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="#62717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="10" cy="10" r="2.5" stroke="#62717A" stroke-width="1.5"/>
+              <path class="eye-slash-line" d="M3 17 17 3" stroke="#62717A" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          {% if form.password1.errors %}
+            <div class="text-danger small mt-1">
+              {% for error in form.password1.errors %}{{ error }}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
 
-    <label for="{{ form.password2.id_for_label }}">Повторите пароль</label>
-    {{ form.password2 }}
-    {% if form.password2.errors %}
-      <ul class="errors">
-        {% for error in form.password2.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+        <div class="field-floating field-password">
+          <label for="{{ form.password2.id_for_label }}">Повторите пароль</label>
+          {{ form.password2 }}
+          <button
+            type="button"
+            class="password-toggle is-hidden"
+            aria-label="Показать пароль"
+            data-target="{{ form.password2.id_for_label }}"
+          >
+            <svg class="eye-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="#62717A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="10" cy="10" r="2.5" stroke="#62717A" stroke-width="1.5"/>
+              <path class="eye-slash-line" d="M3 17 17 3" stroke="#62717A" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          {% if form.password2.errors %}
+            <div class="text-danger small mt-1">
+              {% for error in form.password2.errors %}{{ error }}{% endfor %}
+            </div>
+          {% endif %}
+        </div>
 
-    <div class="checkbox-field">
-      {{ form.personal_data_consent }}
-      <label for="{{ form.personal_data_consent.id_for_label }}">
-        {{ form.personal_data_consent.label }}
-      </label>
+        <div class="auth-checkboxes">
+          <div class="auth-checkbox">
+            {{ form.marketing_consent }}
+            <label for="{{ form.marketing_consent.id_for_label }}">
+              {{ form.marketing_consent.label }}
+            </label>
+          </div>
+          <div>
+            <div class="auth-checkbox">
+              {{ form.personal_data_consent }}
+              <label for="{{ form.personal_data_consent.id_for_label }}">
+                Соглашаюсь с
+                <a href="{% url 'personal-data' %}">правилами обработки персональных данных</a>
+              </label>
+            </div>
+            {% if form.personal_data_consent.errors %}
+              <div class="text-danger small mt-1">
+                {% for error in form.personal_data_consent.errors %}{{ error }}{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="auth-submit">Создать аккаунт</button>
+        </div>
+      </form>
+
+      <p class="text-center mb-0">
+        Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a>
+      </p>
     </div>
-    {% if form.personal_data_consent.errors %}
-      <ul class="errors">
-        {% for error in form.personal_data_consent.errors %}
-          <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+  </div>
 
-    <button type="submit">Зарегистрироваться</button>
-  </form>
+  {% include "_site_footer.html" %}
 
-  <p>Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a></p>
-</div>
+  <script>
+    document.querySelectorAll(".password-toggle").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var input = document.getElementById(btn.dataset.target);
+        input.type = input.type === "password" ? "text" : "password";
+        var hidden = input.type === "password";
+        btn.classList.toggle("is-hidden", hidden);
+        btn.setAttribute(
+          "aria-label",
+          hidden ? "Показать пароль" : "Скрыть пароль"
+        );
+      });
+    });
+
+    (function () {
+      var form = document.querySelector(".auth-form");
+      var submitButton = document.querySelector(".auth-submit");
+      if (!form || !submitButton) {
+        return;
+      }
+      function markDirty() {
+        submitButton.classList.add("auth-submit-active");
+      }
+      form.addEventListener("input", markDirty);
+      form.addEventListener("change", markDirty);
+    })();
+  </script>
 {% endblock %}
