@@ -1,79 +1,186 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Мои данные — promo_draw{% endblock %}
 
 {% block nav %}{% include "_account_nav.html" with active="profile" %}{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h1>Мои данные</h1>
-  <p>Нужны, чтобы можно было ввести промокод.</p>
+<div class="account-page">
+  <section class="dashboard-card">
+    <div class="dashboard-card-inner">
+      <h1 class="dashboard-title">Ваш профиль</h1>
 
-  <form method="post" novalidate>
-    {% csrf_token %}
+      <div class="profile-panel">
+        <div class="profile-panel-head">
+          <span class="profile-panel-title">Основные данные</span>
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="profile-logout">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M7 15.5H4a1.5 1.5 0 0 1-1.5-1.5V4A1.5 1.5 0 0 1 4 2.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 12.5 15.5 9 12 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M15.5 9H6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Выйти
+            </button>
+          </form>
+        </div>
 
-    {% if form.non_field_errors %}
-      <ul class="errors">
-        {% for error in form.non_field_errors %}
-          <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+        <form method="post" class="profile-form" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <ul class="errors">
+              {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
 
-    <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
-    {{ form.last_name }}
-    {% if form.last_name.errors %}
-      <ul class="errors">
-        {% for error in form.last_name.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+          <div class="profile-row profile-row-3">
+            <div class="profile-field">
+              <label for="{{ form.first_name.id_for_label }}">Имя</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}
+                <ul class="errors">
+                  {% for error in form.first_name.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+            <div class="profile-field">
+              <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}
+                <ul class="errors">
+                  {% for error in form.last_name.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+            <div class="profile-field">
+              <label for="{{ form.patronymic.id_for_label }}">Отчество</label>
+              {{ form.patronymic }}
+              {% if form.patronymic.errors %}
+                <ul class="errors">
+                  {% for error in form.patronymic.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          </div>
 
-    <label for="{{ form.first_name.id_for_label }}">Имя</label>
-    {{ form.first_name }}
-    {% if form.first_name.errors %}
-      <ul class="errors">
-        {% for error in form.first_name.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+          <div class="profile-row profile-row-2">
+            <div class="profile-field">
+              <label>Email</label>
+              <div class="profile-static-value">
+                <span>{{ user.email }}</span>
+                {% if user.email_confirmed %}
+                  <svg class="profile-email-check" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <circle cx="9" cy="9" r="9" fill="#59BD1B"/>
+                    <path d="M5 9.3 7.6 12 13 6" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {% endif %}
+              </div>
+            </div>
+            <div class="profile-field">
+              <label for="{{ form.phone.id_for_label }}">Номер телефона</label>
+              {{ form.phone }}
+              {% if form.phone.errors %}
+                <ul class="errors">
+                  {% for error in form.phone.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          </div>
 
-    <label for="{{ form.patronymic.id_for_label }}">Отчество</label>
-    {{ form.patronymic }}
-    <div class="checkbox-field">
-      {{ form.no_patronymic }}
-      <label for="{{ form.no_patronymic.id_for_label }}">
-        {{ form.no_patronymic.label }}
-      </label>
+          <div class="profile-row profile-row-2">
+            <div class="profile-field">
+              <label for="{{ form.address.id_for_label }}">Адрес проживания</label>
+              {{ form.address }}
+              {% if form.address.errors %}
+                <ul class="errors">
+                  {% for error in form.address.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+            <div class="profile-field">
+              <label for="{{ form.birth_date.id_for_label }}">Дата рождения</label>
+              {{ form.birth_date }}
+              {% if form.birth_date.errors %}
+                <ul class="errors">
+                  {% for error in form.birth_date.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="profile-checkbox-row">
+            {{ form.notify_promo_registered }}
+            <label for="{{ form.notify_promo_registered.id_for_label }}">
+              {{ form.notify_promo_registered.label }}
+            </label>
+          </div>
+
+          <div class="profile-actions">
+            <button type="submit" class="profile-save">Сохранить</button>
+            <p class="profile-consent">
+              Вводя или изменяя данные в этом блоке, вы соглашаетесь с нашими
+              <a href="{% url 'personal-data' %}">правилами обработки персональных данных</a>
+            </p>
+            <a href="{% url 'accounts:password_change' %}" class="profile-password-link">
+              <svg width="18" height="17.96" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M7.80078 18.76L4.9884 16.7511C2.36044 14.874 0.800781 11.8433 0.800781 8.61379L0.800781 3.51427C0.800781 3.06779 1.09676 2.67541 1.52606 2.55275L7.52606 0.838464C7.70562 0.787162 7.89595 0.787162 8.0755 0.838464L14.0755 2.55275C14.5048 2.67541 14.8008 3.06779 14.8008 3.51427V5.25997M16.8008 12.76V10.76C16.8008 9.6554 15.9054 8.75997 14.8008 8.75997C13.6962 8.75997 12.8008 9.6554 12.8008 10.76V12.76M16.8008 12.76H12.8008M16.8008 12.76C17.9054 12.76 18.8008 13.6554 18.8008 14.76V16.76C18.8008 17.8645 17.9054 18.76 16.8008 18.76H12.8008C11.6962 18.76 10.8008 17.8645 10.8008 16.76V14.76C10.8008 13.6554 11.6962 12.76 12.8008 12.76" stroke="#2E4452" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Сменить пароль
+            </a>
+          </div>
+        </form>
+      </div>
     </div>
-    {% if form.patronymic.errors %}
-      <ul class="errors">
-        {% for error in form.patronymic.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+  </section>
 
-    <label for="{{ form.birth_date.id_for_label }}">Дата рождения</label>
-    {{ form.birth_date }}
-    {% if form.birth_date.errors %}
-      <ul class="errors">
-        {% for error in form.birth_date.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+  <details class="account-data-note">
+    <summary class="account-data-note-summary">
+      <img
+        src="{% static 'img/home/data-banner-shield.png' %}"
+        alt=""
+        class="account-data-note-shield"
+      >
+      <span class="account-data-note-heading">
+        <span class="account-data-note-title">Какие данные нужно указать, если вы победили?</span>
+        <span class="account-data-note-text">
+          *Все данные защищены и не передаются третьим лицам. Используются
+          исключительно для проведения акции и отправки призов победителям в
+          соответствии с Федеральным законом №152-ФЗ «О персональных данных».
+        </span>
+      </span>
+      <span class="account-data-note-toggle"></span>
+    </summary>
+    <ul class="account-data-note-list">
+      <li>Фамилия, Имя, Отчество</li>
+      <li>Адрес регистрации (по паспорту)</li>
+      <li>Идентификационный номер налогоплательщика</li>
+      <li>Серия и номер паспорта</li>
+      <li>Кем и когда выдан паспорт</li>
+      <li>Код подразделения</li>
+      <li>Фактический адрес доставки приза</li>
+      <li>Номер мобильного телефона</li>
+    </ul>
+  </details>
 
-    <label for="{{ form.phone.id_for_label }}">Телефон</label>
-    {{ form.phone }}
-    {% if form.phone.errors %}
-      <ul class="errors">
-        {% for error in form.phone.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
-
-    <div class="checkbox-field">
-      {{ form.notify_promo_registered }}
-      <label for="{{ form.notify_promo_registered.id_for_label }}">
-        {{ form.notify_promo_registered.label }}
-      </label>
-    </div>
-
-    <button type="submit">Сохранить</button>
-  </form>
+  {% include "_account_faq.html" %}
 </div>
+
+{% include "_site_footer.html" with footer_extra_class="account-footer" %}
+
+<script>
+  (function () {
+    var form = document.querySelector(".profile-form");
+    var saveButton = document.querySelector(".profile-save");
+    if (!form || !saveButton) {
+      return;
+    }
+    function markDirty() {
+      saveButton.classList.add("profile-save-active");
+    }
+    form.addEventListener("input", markDirty);
+    form.addEventListener("change", markDirty);
+  })();
+</script>
 {% endblock %}

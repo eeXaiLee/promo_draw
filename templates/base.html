@@ -1831,6 +1831,263 @@
     .account-footer {
       width: 1280px;
     }
+    .profile-panel {
+      background: #F5F8FA;
+      border-radius: 24px;
+      padding: 24px 28px 28px;
+    }
+    .profile-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .profile-panel-title {
+      font-family: "Mulish", sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #25353D;
+      text-transform: uppercase;
+    }
+    .profile-panel-head form {
+      display: contents;
+    }
+    .profile-logout {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      border: none;
+      background: none;
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: #E24C4C;
+      cursor: pointer;
+    }
+    .profile-row {
+      display: grid;
+      gap: 16px 24px;
+      margin-bottom: 16px;
+    }
+    .profile-row-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .profile-row-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .profile-field {
+      position: relative;
+    }
+    .profile-field label {
+      position: absolute;
+      top: 0;
+      left: 16px;
+      transform: translateY(-50%);
+      margin: 0;
+      padding: 0 6px;
+      background: #F5F8FA;
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #62717A;
+    }
+    .profile-field input {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      border: 1px solid #E6ECF0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #F5F8FA;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #25353D;
+    }
+    .profile-field input::placeholder {
+      color: #A2AFB8;
+    }
+    .profile-static-value {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-sizing: border-box;
+      border: 1px solid #E6ECF0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #F5F8FA;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #25353D;
+    }
+    .profile-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .profile-checkbox-row label {
+      margin: 0;
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: #62717A;
+    }
+    .profile-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      margin-top: 24px;
+    }
+    .profile-save {
+      margin: 0;
+      border: none;
+      border-radius: 152px;
+      padding: 12px 32px;
+      background: #E6ECF0;
+      color: #A2AFB8;
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 1.4;
+      cursor: pointer;
+    }
+    .profile-save-active {
+      background: var(--brand-orange);
+      color: #FFFFFF;
+    }
+    .profile-consent {
+      margin: 0;
+      max-width: 380px;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 1.2;
+      color: #62717A;
+    }
+    .profile-consent a {
+      color: #4DC6F4;
+    }
+    .profile-password-link {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 152px;
+      background: #F5F8FA;
+      font-family: "Mulish", sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 1.4;
+      color: #25353D;
+      text-decoration: none;
+    }
+    .account-data-note {
+      position: relative;
+      width: 1280px;
+      max-width: 100%;
+      margin: 28px auto 0;
+      box-sizing: border-box;
+      background: radial-gradient(75.46% 105.93% at 50% 100%, #2F3C4B 0%, #21242A 100%);
+      border-radius: 40px;
+      overflow: hidden;
+    }
+    .account-data-note-summary {
+      position: relative;
+      display: block;
+      height: 144px;
+      cursor: pointer;
+      list-style: none;
+    }
+    .account-data-note-summary::-webkit-details-marker {
+      display: none;
+    }
+    .account-data-note-shield {
+      position: absolute;
+      top: 0;
+      left: -5px;
+      width: 286px;
+      height: auto;
+    }
+    .account-data-note-heading {
+      position: absolute;
+      top: 28px;
+      left: 307px;
+      width: 906px;
+      max-width: calc(100% - 307px - 56px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .account-data-note-title {
+      margin: 0;
+      font-family: "Mulish", sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      line-height: 1.2;
+      color: #F5F8FA;
+    }
+    .account-data-note-text {
+      margin: 0;
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.4;
+      color: #A9B7C0;
+    }
+    .account-data-note-toggle {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.2s;
+    }
+    .account-data-note-toggle::before,
+    .account-data-note-toggle::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      background: #A2AFB8;
+      border-radius: 1px;
+    }
+    .account-data-note-toggle::before {
+      width: 14px;
+      height: 1.5px;
+      transform: translate(-50%, -50%);
+    }
+    .account-data-note-toggle::after {
+      width: 1.5px;
+      height: 14px;
+      transform: translate(-50%, -50%);
+    }
+    .account-data-note[open] .account-data-note-toggle {
+      transform: rotate(45deg);
+    }
+    .account-data-note-list {
+      margin: 16px 24px 24px 307px;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .account-data-note-list li {
+      font-family: "Mulish", sans-serif;
+      font-weight: 500;
+      font-size: 18px;
+      line-height: 1.4;
+      color: #F5F8FA;
+    }
   </style>
 </head>
 <body>

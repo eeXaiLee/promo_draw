@@ -119,10 +119,14 @@ class PasswordResetRequestForm(PasswordResetForm):
 
 
 class ProfileForm(forms.ModelForm):
-    """Личные данные: обязательны для ввода промокода (кроме отчества)."""
+    """Личные данные: обязательны для ввода промокода (кроме отчества и
+    адреса)."""
 
-    no_patronymic = forms.BooleanField(label="Нет отчества", required=False)
-    phone = forms.CharField(label="Телефон", help_text="Формат: +79XXXXXXXXX")
+    phone = forms.CharField(
+        label="Телефон",
+        help_text="Формат: +79XXXXXXXXX",
+        widget=forms.TextInput(attrs={"placeholder": "+7 (___) ___-__-__"}),
+    )
 
     class Meta:
         model = User
@@ -132,6 +136,7 @@ class ProfileForm(forms.ModelForm):
             "patronymic",
             "birth_date",
             "phone",
+            "address",
             "notify_promo_registered",
         )
         labels = {
@@ -140,32 +145,24 @@ class ProfileForm(forms.ModelForm):
             "patronymic": "Отчество",
             "birth_date": "Дата рождения",
             "phone": "Телефон",
+            "address": "Адрес проживания",
             "notify_promo_registered": (
                 "Присылать письмо при регистрации промокода"
             ),
         }
-        widgets = {"birth_date": forms.DateInput(attrs={"type": "date"})}
-
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self.fields["patronymic"].required = False
-        had_no_patronymic = (
-            self.instance.pk
-            and self.instance.first_name
-            and not self.instance.patronymic
-        )
-        if had_no_patronymic:
-            self.fields["no_patronymic"].initial = True
+        widgets = {
+            "birth_date": forms.DateInput(attrs={"type": "date"}),
+            "first_name": forms.TextInput(attrs={"placeholder": "Введите имя"}),
+            "last_name": forms.TextInput(
+                attrs={"placeholder": "Введите фамилию"}
+            ),
+            "patronymic": forms.TextInput(
+                attrs={"placeholder": "Введите отчество"}
+            ),
+            "address": forms.TextInput(
+                attrs={"placeholder": "Введите адрес доставки приза"}
+            ),
+        }
 
     def clean_phone(self) -> str:
         return normalize_phone(self.cleaned_data["phone"])
-
-    def clean(self) -> dict[str, Any]:
-        cleaned_data = super().clean() or {}
-        if cleaned_data.get("no_patronymic"):
-            cleaned_data["patronymic"] = ""
-        elif not cleaned_data.get("patronymic"):
-            self.add_error(
-                "patronymic", "Укажите отчество или отметьте «нет отчества»."
-            )
-        return cleaned_data

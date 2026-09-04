@@ -60,7 +60,6 @@ def profile_form_data() -> dict[str, object]:
     return {
         "last_name": "Иванов",
         "first_name": "Иван",
-        "no_patronymic": True,
         "birth_date": "1990-01-01",
         "phone": "8 (999) 123-45-67",
         "notify_promo_registered": True,
