@@ -15,7 +15,7 @@ from django.http import HttpRequest
 from .models import User
 from .rate_limit import get_client_ip, hit_rate_limit
 from .tasks import send_password_reset_email
-from .validators import normalize_phone
+from .validators import normalize_phone, validate_birth_date
 
 
 class LoginForm(AuthenticationForm):
@@ -143,6 +143,12 @@ class ProfileForm(forms.ModelForm):
         help_text="Формат: +79XXXXXXXXX",
         widget=forms.TextInput(attrs={"placeholder": "+7 (___) ___-__-__"}),
     )
+    birth_date = forms.DateField(
+        label="Дата рождения",
+        input_formats=["%Y-%m-%d"],
+        validators=[validate_birth_date],
+        widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+    )
 
     class Meta:
         model = User
@@ -167,7 +173,6 @@ class ProfileForm(forms.ModelForm):
             ),
         }
         widgets = {
-            "birth_date": forms.DateInput(attrs={"type": "date"}),
             "first_name": forms.TextInput(attrs={"placeholder": "Введите имя"}),
             "last_name": forms.TextInput(
                 attrs={"placeholder": "Введите фамилию"}
