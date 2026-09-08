@@ -202,10 +202,19 @@
     .tabs a.active { background: #1a1a1a; color: #fff; }
     .winners { padding-left: 1.2rem; }
     .nav-bar {
-      position: relative;
+      position: sticky;
+      top: 0;
       z-index: 2;
       border-bottom: 1px solid #e0e0e0;
       padding: 1rem;
+      background: transparent;
+      transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .nav-bar.is-scrolled {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 2px 12px rgba(28, 43, 51, 0.08);
     }
     .nav {
       display: flex;
@@ -2198,5 +2207,16 @@
   {% endif %}
   {% block content %}{% endblock %}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      var navBar = document.querySelector(".nav-bar");
+      if (!navBar) return;
+      function updateNavBarScrolled() {
+        navBar.classList.toggle("is-scrolled", window.scrollY > 8);
+      }
+      updateNavBarScrolled();
+      window.addEventListener("scroll", updateNavBarScrolled, { passive: true });
+    })();
+  </script>
 </body>
 </html>
