@@ -511,9 +511,9 @@
 
       function nextDrawDate() {
         var now = new Date();
-        var target = new Date(now.getFullYear(), now.getMonth(), 9, 0, 0, 0);
+        var target = new Date(now.getFullYear(), now.getMonth(), 10, 0, 0, 0);
         if (target <= now) {
-          target = new Date(now.getFullYear(), now.getMonth() + 1, 9, 0, 0, 0);
+          target = new Date(now.getFullYear(), now.getMonth() + 1, 10, 0, 0, 0);
         }
         return target;
       }
