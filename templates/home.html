@@ -5,38 +5,40 @@
 
 {% block content %}
   <section class="hero">
-    <img
-      src="{% static 'img/home/confetti-right.png' %}"
-      alt=""
-      class="hero-confetti hero-confetti-right"
-    >
-    <img
-      src="{% static 'img/home/confetti-left.png' %}"
-      alt=""
-      class="hero-confetti hero-confetti-left"
-    >
-    <div class="hero-text">
-      <h1 class="hero-title">10 месяцев побед<br>вместе с Эскимос!</h1>
-      <p class="hero-subtitle">
-        <strong>Каждое 9-е число</strong> месяца разыгрываем
-        <strong>2 крутых приза!</strong><br>
-        А в конце — грандиозный супер-розыгрыш для 4 счастливчиков!
-      </p>
-      {% if user.is_authenticated %}
-        <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary btn-cta">
-          Участвовать
-        </a>
-      {% else %}
-        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-cta">
-          Участвовать
-        </a>
-      {% endif %}
+    <div class="hero-inner">
+      <img
+        src="{% static 'img/home/confetti-right.png' %}"
+        alt=""
+        class="hero-confetti hero-confetti-right"
+      >
+      <img
+        src="{% static 'img/home/confetti-left.png' %}"
+        alt=""
+        class="hero-confetti hero-confetti-left"
+      >
+      <div class="hero-text">
+        <h1 class="hero-title">10 месяцев побед<br>вместе с Эскимос!</h1>
+        <p class="hero-subtitle">
+          <strong>Каждое 9-е число</strong> месяца разыгрываем
+          <strong>2 крутых приза!</strong><br>
+          А в конце — грандиозный супер-розыгрыш для 4 счастливчиков!
+        </p>
+        {% if user.is_authenticated %}
+          <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary btn-cta">
+            Участвовать
+          </a>
+        {% else %}
+          <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-cta">
+            Участвовать
+          </a>
+        {% endif %}
+      </div>
+      <img
+        src="{% static 'img/home/eskimos-hero.png' %}"
+        alt=""
+        class="hero-products"
+      >
     </div>
-    <img
-      src="{% static 'img/home/eskimos-hero.png' %}"
-      alt=""
-      class="hero-products"
-    >
   </section>
 
   <div class="timer-card">
@@ -316,30 +318,32 @@
   </section>
 
   <section class="rules-section">
-    <div class="rules-content">
-      <h2 class="rules-title">Пожалуйста, ознакомьтесь<br>с правилами проведения акции!</h2>
-      <div>
-        <h3 class="rules-subtitle">Главные правила:</h3>
-        <ul class="rules-list">
-          <li>1 приз в 1 руки в одном розыгрыше</li>
-          <li>1 приз в 1 руки в одном розыгрыше</li>
-          <li>1 приз в 1 руки в одном розыгрыше</li>
-          <li>1 приз в 1 руки в одном розыгрыше</li>
-          <li>1 приз в 1 руки в одном розыгрыше</li>
-        </ul>
+    <div class="rules-inner">
+      <div class="rules-content">
+        <h2 class="rules-title">Пожалуйста, ознакомьтесь<br>с правилами проведения акции!</h2>
+        <div>
+          <h3 class="rules-subtitle">Главные правила:</h3>
+          <ul class="rules-list">
+            <li>1 приз в 1 руки в одном розыгрыше</li>
+            <li>1 приз в 1 руки в одном розыгрыше</li>
+            <li>1 приз в 1 руки в одном розыгрыше</li>
+            <li>1 приз в 1 руки в одном розыгрыше</li>
+            <li>1 приз в 1 руки в одном розыгрыше</li>
+          </ul>
+        </div>
+        <a href="{% static 'docs/rules.pdf' %}" target="_blank" class="btn-rules">
+          СМОТРЕТЬ ВСЕ ПРАВИЛА
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
       </div>
-      <a href="{% static 'docs/rules.pdf' %}" target="_blank" class="btn-rules">
-        СМОТРЕТЬ ВСЕ ПРАВИЛА
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
+      <img
+        src="{% static 'img/home/bear-rules.png' %}"
+        alt=""
+        class="rules-bear"
+      >
     </div>
-    <img
-      src="{% static 'img/home/bear-rules.png' %}"
-      alt=""
-      class="rules-bear"
-    >
   </section>
 
   <div class="winners-page-band">
@@ -347,29 +351,31 @@
   </div>
 
   <section class="dashboard-section">
-    <img
-      src="{% static 'img/home/dashboard-laptop.png' %}"
-      alt=""
-      class="dashboard-image"
-    >
-    <div class="dashboard-text">
-      <h2 class="dashboard-title">Все ваши коды и шансы<br>— в личном кабинете</h2>
-      <div>
-        <h3 class="dashboard-subtitle">Функционал ЛК:</h3>
-        <ul class="dashboard-list">
-          <li>Регистрация участника</li>
-          <li>Ввод и хранение кодов</li>
-          <li>Автоматическая проверка кодов на валидность</li>
-          <li>Статистика</li>
-          <li>История участия</li>
-          <li>Обновление данных для получения приза</li>
-        </ul>
+    <div class="dashboard-inner">
+      <img
+        src="{% static 'img/home/dashboard-laptop.png' %}"
+        alt=""
+        class="dashboard-image"
+      >
+      <div class="dashboard-text">
+        <h2 class="dashboard-title">Все ваши коды и шансы<br>— в личном кабинете</h2>
+        <div>
+          <h3 class="dashboard-subtitle">Функционал ЛК:</h3>
+          <ul class="dashboard-list">
+            <li>Регистрация участника</li>
+            <li>Ввод и хранение кодов</li>
+            <li>Автоматическая проверка кодов на валидность</li>
+            <li>Статистика</li>
+            <li>История участия</li>
+            <li>Обновление данных для получения приза</li>
+          </ul>
+        </div>
+        {% if user.is_authenticated %}
+          <a href="{% url 'accounts:dashboard' %}" class="btn-dashboard">В личный кабинет</a>
+        {% else %}
+          <a href="{% url 'accounts:register' %}" class="btn-dashboard">В личный кабинет</a>
+        {% endif %}
       </div>
-      {% if user.is_authenticated %}
-        <a href="{% url 'accounts:dashboard' %}" class="btn-dashboard">В личный кабинет</a>
-      {% else %}
-        <a href="{% url 'accounts:register' %}" class="btn-dashboard">В личный кабинет</a>
-      {% endif %}
     </div>
   </section>
 

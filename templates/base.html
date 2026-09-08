@@ -915,14 +915,18 @@
       color: #425561;
     }
     .hero {
-      position: relative;
-      width: 1600px;
-      height: 808px;
-      max-width: 100%;
-      margin: -116px auto 0;
+      width: 100%;
+      margin: -116px 0 0;
       background: #E1F1FA;
       border-radius: 0 0 60px 60px;
       overflow: hidden;
+    }
+    .hero-inner {
+      position: relative;
+      width: 1600px;
+      aspect-ratio: 1600 / 808;
+      max-width: 100%;
+      margin: 0 auto;
     }
     .hero-confetti {
       position: absolute;
@@ -931,25 +935,25 @@
       opacity: 0.24;
     }
     .hero-confetti-right {
-      bottom: 0px;
-      right: 0px;
-      width: 659px;
-      height: 643px;
+      bottom: 0;
+      right: 0;
+      width: 41.19%;
+      height: 79.58%;
 
     }
     .hero-confetti-left {
-      bottom: 0px;
-      left: 0px;
-      width: 685px;
-      height: 643px;
+      bottom: 0;
+      left: 0;
+      width: 42.81%;
+      height: 79.58%;
 
     }
     .hero-text {
       position: absolute;
-      top: 124px;
-      left: 80px;
-      width: 1440px;
-      height: 362px;
+      top: 15.35%;
+      left: 5%;
+      width: 90%;
+      height: 44.8%;
       z-index: 1;
       display: flex;
       flex-direction: column;
@@ -987,10 +991,10 @@
     }
     .hero-products {
       position: absolute;
-      top: 297px;
-      left: -27px;
-      width: 1670px;
-      height: 529px;
+      top: 36.76%;
+      left: -1.69%;
+      width: 104.38%;
+      height: 65.47%;
       z-index: 0;
       pointer-events: none;
     }
@@ -1088,7 +1092,7 @@
     .win-card {
       position: relative;
       width: 464px;
-      height: 410px;
+      aspect-ratio: 464 / 410;
       padding: 32px;
       background: #FFFFFF;
       border: 1px solid #E6ECF0;
@@ -1149,31 +1153,31 @@
     }
     .win-card-1-choco {
       position: absolute;
-      width: 270px;
+      width: 58.19%;
       height: auto;
-      top: 100px;
-      left: 180px;
+      top: 24.39%;
+      left: 38.79%;
       transform: rotate(-10deg);
     }
     .win-card-1-yellow {
       position: absolute;
-      top: 180px;
-      left: 100px;
+      top: 43.9%;
+      left: 21.55%;
       transform: rotate(-15deg);
     }
     .win-card-2-img {
       position: absolute;
-      top: 162px;
+      top: 39.51%;
       left: 0;
       right: 0;
       width: 100%;
     }
     .win-card-3-img {
       position: absolute;
-      width: 400px;
+      width: 86.21%;
       height: auto;
-      top: 143px;
-      right: 40px;
+      top: 34.88%;
+      right: 8.62%;
     }
     .win-card-btn {
       margin-top: 8px;
@@ -1375,14 +1379,18 @@
       margin: -35px -210px -60px;
     }
     .rules-section {
+      width: 100%;
+      margin: 120px 0 0;
+      background: #FFFFFF;
+      overflow: visible;
+    }
+    .rules-inner {
       position: relative;
       width: 1600px;
       max-width: 100%;
-      margin: 120px auto 0;
-      background: #FFFFFF;
+      margin: 0 auto;
       padding: 80px 160px;
       box-sizing: border-box;
-      overflow: visible;
     }
     .rules-content {
       display: flex;
@@ -1446,8 +1454,8 @@
     .rules-bear {
       position: absolute;
       bottom: 0;
-      left: 763px;
-      width: 711px;
+      left: 47.69%;
+      width: 44.44%;
       height: 612px;
     }
     .winners-wrap {
@@ -1455,9 +1463,7 @@
       margin: 0 auto;
     }
     .winners-page-band {
-      width: 1600px;
-      max-width: 100%;
-      margin: 0 auto;
+      width: 100%;
       background: #FFFFFF;
     }
     .winners-section {
@@ -1636,26 +1642,29 @@
       flex-shrink: 0;
     }
     .dashboard-section {
-      position: relative;
-      width: 1600px;
-      height: 564px;
-      max-width: 100%;
-      margin: 0 auto;
+      width: 100%;
       background: #FFFFFF;
       overflow: hidden;
     }
+    .dashboard-inner {
+      position: relative;
+      width: 1600px;
+      aspect-ratio: 1600 / 564;
+      max-width: 100%;
+      margin: 0 auto;
+    }
     .dashboard-image {
       position: absolute;
-      top: 80px;
-      left: 64px;
-      width: 780px;
+      top: 14.18%;
+      left: 4%;
+      width: 48.75%;
       height: auto;
     }
     .dashboard-text {
       position: absolute;
-      top: 80px;
-      left: 847px;
-      width: 652px;
+      top: 14.18%;
+      left: 52.94%;
+      width: 40.75%;
       display: flex;
       flex-direction: column;
       gap: 24px;
