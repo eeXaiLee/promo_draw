@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import datetime
+from unittest.mock import patch
+from zoneinfo import ZoneInfo
+
 from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.promocodes.models import PromoCode
 from apps.promocodes.services import redeem_code
+
+MOSCOW_TZ = ZoneInfo("Europe/Moscow")
 
 
 def test_redeem_code_success(complete_user: User) -> None:
@@ -43,6 +49,32 @@ def test_redeem_code_email_not_confirmed(complete_user: User) -> None:
 
     assert not result.success
     assert result.failure_reason == "email_not_confirmed"
+
+
+def test_redeem_code_before_campaign_start(complete_user: User) -> None:
+    """До старта акции код не принимается, даже если он существует."""
+    PromoCode.objects.create(code="DDDD4444")
+    before_start = datetime.datetime(2026, 1, 1, tzinfo=MOSCOW_TZ)
+
+    with patch(
+        "apps.promocodes.services.timezone.now", return_value=before_start
+    ):
+        result = redeem_code(complete_user, "DDDD4444")
+
+    assert not result.success
+    assert result.failure_reason == "campaign_not_started"
+
+
+def test_redeem_code_after_campaign_end(complete_user: User) -> None:
+    """После конца акции код больше не гасится."""
+    PromoCode.objects.create(code="EEEE5555")
+    after_end = datetime.datetime(2027, 1, 2, tzinfo=MOSCOW_TZ)
+
+    with patch("apps.promocodes.services.timezone.now", return_value=after_end):
+        result = redeem_code(complete_user, "EEEE5555")
+
+    assert not result.success
+    assert result.failure_reason == "campaign_ended"
 
 
 def test_redeem_code_bans_after_three_failed_attempts(

@@ -9,6 +9,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.accounts.models import User
+from apps.giveaway import promo_period
 
 from .models import PromoCode, PromoRedemptionAttempt, code_validator
 from .rate_limit import get_ban_message, register_failed_attempt
@@ -28,6 +29,12 @@ FAILURE_MESSAGES: dict[str, str] = {
         "Такой промокод не найден. Проверьте, что ввели его без ошибок."
     ),
     FailureReason.ALREADY_USED: "Этот промокод уже был использован.",
+    FailureReason.CAMPAIGN_NOT_STARTED: (
+        "Акция ещё не началась — загляните позже."
+    ),
+    FailureReason.CAMPAIGN_ENDED: (
+        "Акция уже завершена, ввод промокодов закрыт."
+    ),
 }
 
 
@@ -42,8 +49,14 @@ class RedemptionResult:
 
 
 def redeem_code(user: User, code_input: str) -> RedemptionResult:
-    """Погашает промокод: бан, профиль, поиск кода и использование."""
+    """Погашает промокод: окно акции, бан, профиль, поиск и использование."""
     code_input = code_input.strip().upper()
+
+    now = timezone.now()
+    if now < promo_period.CAMPAIGN_START:
+        return _fail(user, code_input, FailureReason.CAMPAIGN_NOT_STARTED)
+    if now > promo_period.CAMPAIGN_END:
+        return _fail(user, code_input, FailureReason.CAMPAIGN_ENDED)
 
     ban_message = get_ban_message(user.pk)
     if ban_message is not None:
