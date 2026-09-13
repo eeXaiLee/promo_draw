@@ -11,6 +11,7 @@ from django.template.defaultfilters import date as format_date
 from apps.accounts.models import User
 from apps.promocodes.models import PromoCode
 
+from . import promo_period
 from .models import DrawKind, MonthlyDraw, Prize, Winner
 
 MOSCOW_TZ = ZoneInfo("Europe/Moscow")
@@ -104,24 +105,10 @@ def finalize_draw(
     return winners
 
 
-def next_monthly_period(
-    today: datetime.date,
-) -> tuple[datetime.date, datetime.date]:
-    """Период очередного ежемесячного розыгрыша: с 10-го числа прошлого
-    месяца по 9-е текущего (включительно) — вызывается 10-го числа, когда
-    предыдущий период уже полностью закрыт."""
-    period_end = today - datetime.timedelta(days=1)
-    if today.month == 1:
-        prev_month, prev_year = 12, today.year - 1
-    else:
-        prev_month, prev_year = today.month - 1, today.year
-    period_start = datetime.date(prev_year, prev_month, 10)
-    return period_start, period_end
-
-
-def get_or_create_monthly_draw(today: datetime.date) -> MonthlyDraw:
-    """Розыгрыш за только что закрывшийся месячный период."""
-    period_start, period_end = next_monthly_period(today)
+def get_or_create_monthly_draw_for_period(
+    period_start: datetime.date, period_end: datetime.date
+) -> MonthlyDraw:
+    """Розыгрыш за конкретный месячный период (создаёт, если ещё нет)."""
     draw, _ = MonthlyDraw.objects.get_or_create(
         period_start=period_start,
         period_end=period_end,
@@ -131,42 +118,32 @@ def get_or_create_monthly_draw(today: datetime.date) -> MonthlyDraw:
     return draw
 
 
-CAMPAIGN_START = datetime.date(2026, 2, 9)
-CAMPAIGN_END = datetime.date(2026, 12, 31)
+def get_or_create_monthly_draw(today: datetime.date) -> MonthlyDraw | None:
+    """Розыгрыш за период, чей день розыгрыша — сегодня.
+
+    `None`, если сегодня не 9-е число одного из месяцев акции (март–декабрь) —
+    так автозадача остаётся безопасной, даже если расписание Celery Beat
+    почему-то сработает вне графика акции.
+    """
+    period = promo_period.monthly_period_ending_on(today)
+    if period is None:
+        return None
+    return get_or_create_monthly_draw_for_period(*period)
+
+
 SUPER_DRAW_PRIZE_COUNT = 4
 
 
 def get_or_create_super_draw() -> MonthlyDraw:
     """Супер-розыгрыш — разовое событие в конце акции, билеты за весь
-    срок акции (09.02–31.12.2026), без исключения прошлых победителей
-    ежемесячных розыгрышей."""
+    срок акции, без исключения прошлых победителей ежемесячных розыгрышей."""
     draw, _ = MonthlyDraw.objects.get_or_create(
-        period_start=CAMPAIGN_START,
-        period_end=CAMPAIGN_END,
+        period_start=promo_period.CAMPAIGN_START.date(),
+        period_end=promo_period.CAMPAIGN_END.date(),
         kind=DrawKind.SUPER,
         defaults={"prize_count": SUPER_DRAW_PRIZE_COUNT},
     )
     return draw
-
-
-def _monthly_period_for_date(
-    day: datetime.date,
-) -> tuple[datetime.date, datetime.date]:
-    """Ежемесячный период, в который попадает дата."""
-    if day.day >= 10:
-        start_month, start_year = day.month, day.year
-    else:
-        start_month, start_year = (
-            (12, day.year - 1) if day.month == 1 else (day.month - 1, day.year)
-        )
-    period_start = datetime.date(start_year, start_month, 10)
-    end_month, end_year = (
-        (1, start_year + 1)
-        if start_month == 12
-        else (start_month + 1, start_year)
-    )
-    period_end = datetime.date(end_year, end_month, 9)
-    return period_start, period_end
 
 
 def _draw_display_name(period_end: datetime.date, kind: str) -> str:
@@ -211,7 +188,7 @@ def winners_months_context() -> dict[str, object]:
     Используется и на главной странице, и в личном кабинете.
     """
     draws_by_month = {
-        draw.period_end.month: draw
+        (draw.period_end.year, draw.period_end.month): draw
         for draw in (
             MonthlyDraw.objects.filter(kind=DrawKind.MONTHLY, is_finalized=True)
             .order_by("period_end")
@@ -220,10 +197,11 @@ def winners_months_context() -> dict[str, object]:
             )
         )
     }
+    year = promo_period.CAMPAIGN_START.year
     winners_months = [
         {
-            "label": format_date(datetime.date(2026, month, 1), "F"),
-            "draw": draws_by_month.get(month),
+            "label": format_date(datetime.date(year, month, 1), "F"),
+            "draw": draws_by_month.get((year, month)),
         }
         for month in range(1, 13)
     ]
@@ -265,15 +243,23 @@ def list_user_codes(user: User) -> UserCodesSummary:
             )
         else:
             used_date = promo_code.used_at.astimezone(MOSCOW_TZ).date()
-            period_start, period_end = _monthly_period_for_date(used_date)
-            draw = monthly_draws_by_period.get((period_start, period_end))
-            campaign = _draw_display_name(period_end, DrawKind.MONTHLY)
-            if draw is not None and draw.is_finalized:
-                status = "no_win"
-                no_win_count += 1
-            else:
+            period = promo_period.monthly_period_for_date(used_date)
+            if period is None:
+                campaign = _draw_display_name(
+                    promo_period.CAMPAIGN_END.date(), DrawKind.SUPER
+                )
                 status = "pending"
                 pending_count += 1
+            else:
+                period_start, period_end = period
+                draw = monthly_draws_by_period.get((period_start, period_end))
+                campaign = _draw_display_name(period_end, DrawKind.MONTHLY)
+                if draw is not None and draw.is_finalized:
+                    status = "no_win"
+                    no_win_count += 1
+                else:
+                    status = "pending"
+                    pending_count += 1
         rows.append(
             UserCodeRow(
                 code=promo_code.code,

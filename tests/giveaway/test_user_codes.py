@@ -7,9 +7,9 @@ from apps.giveaway.models import DrawKind, MonthlyDraw, Prize, Winner
 from apps.giveaway.services import list_user_codes, moscow_day_bounds
 from apps.promocodes.models import PromoCode
 
-PERIOD_START = datetime.date(2030, 1, 10)
-PERIOD_END = datetime.date(2030, 2, 9)
-REDEEMED_ON = datetime.date(2030, 1, 20)
+PERIOD_START = datetime.date(2026, 3, 10)
+PERIOD_END = datetime.date(2026, 4, 9)
+REDEEMED_ON = datetime.date(2026, 3, 20)
 
 
 def _redeem(user: User, code: str, date: datetime.date) -> PromoCode:
@@ -81,18 +81,18 @@ def test_list_user_codes_counts_across_multiple_codes(db) -> None:
     user = User.objects.create_user(email="u@example.com", password="x")
     _redeem(user, "PENDING1", REDEEMED_ON)
 
-    _redeem(user, "NOWIN001", datetime.date(2030, 3, 15))
+    _redeem(user, "NOWIN001", datetime.date(2026, 4, 15))
     MonthlyDraw.objects.create(
-        period_start=datetime.date(2030, 3, 10),
-        period_end=datetime.date(2030, 4, 9),
+        period_start=datetime.date(2026, 4, 10),
+        period_end=datetime.date(2026, 5, 9),
         kind=DrawKind.MONTHLY,
         is_finalized=True,
     )
 
-    won_code = _redeem(user, "WONCODE1", datetime.date(2030, 5, 15))
+    won_code = _redeem(user, "WONCODE1", datetime.date(2026, 5, 15))
     won_draw = MonthlyDraw.objects.create(
-        period_start=datetime.date(2030, 5, 10),
-        period_end=datetime.date(2030, 6, 9),
+        period_start=datetime.date(2026, 5, 10),
+        period_end=datetime.date(2026, 6, 9),
         kind=DrawKind.MONTHLY,
     )
     Winner.objects.create(

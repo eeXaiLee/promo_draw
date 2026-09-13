@@ -8,25 +8,50 @@ from django.utils import timezone
 
 from promo_draw.celery import EMAIL_TASK_KWARGS
 
+from . import promo_period
 from .models import Winner
 from .services import (
     MOSCOW_TZ,
     finalize_draw,
     get_or_create_monthly_draw,
+    get_or_create_monthly_draw_for_period,
     get_or_create_super_draw,
 )
 
 
 @shared_task
 def finalize_monthly_draw() -> None:
-    """Финализирует ежемесячный розыгрыш за только что закрытый период.
+    """Финализирует ежемесячный розыгрыш, назначенный на сегодня.
 
-    Запускается 10-го числа в 00:00 МСК — период 10-е прошлого месяца..
-    9-е текущего к этому моменту уже полностью закрыт.
+    Запускается 9-го числа в 21:00 МСК. Если сегодня не день розыгрыша
+    (расписание Celery Beat сработало не вовремя) — ничего не делает,
+    оставляя это `catch_up_monthly_draws`.
     """
     today_msk = timezone.now().astimezone(MOSCOW_TZ).date()
     draw = get_or_create_monthly_draw(today_msk)
-    finalize_draw(draw)
+    if draw is not None:
+        finalize_draw(draw)
+
+
+@shared_task
+def catch_up_monthly_draws() -> None:
+    """Подстраховка на случай простоя ровно в момент розыгрыша.
+
+    Раз в 30 минут проверяет все периоды акции, чей день розыгрыша уже
+    наступил, и дозакрывает те, что почему-то остались не финализированы.
+    """
+    today_msk = timezone.now().astimezone(MOSCOW_TZ).date()
+    for period_start, period_end in promo_period.monthly_periods():
+        if period_end > today_msk:
+            continue
+        draw = get_or_create_monthly_draw_for_period(period_start, period_end)
+        if not draw.is_finalized:
+            finalize_draw(draw)
+
+    if today_msk > promo_period.CAMPAIGN_END.date():
+        super_draw = get_or_create_super_draw()
+        if not super_draw.is_finalized:
+            finalize_draw(super_draw)
 
 
 @shared_task
