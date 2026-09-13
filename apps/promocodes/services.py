@@ -35,6 +35,10 @@ FAILURE_MESSAGES: dict[str, str] = {
     FailureReason.CAMPAIGN_ENDED: (
         "Акция уже завершена, ввод промокодов закрыт."
     ),
+    FailureReason.PERIOD_TRANSITION: (
+        "Идёт подведение итогов текущего периода — приём кодов "
+        "возобновится завтра."
+    ),
 }
 
 
@@ -57,6 +61,8 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
         return _fail(user, code_input, FailureReason.CAMPAIGN_NOT_STARTED)
     if now > promo_period.CAMPAIGN_END:
         return _fail(user, code_input, FailureReason.CAMPAIGN_ENDED)
+    if promo_period.is_in_draw_transition_window(now):
+        return _fail(user, code_input, FailureReason.PERIOD_TRANSITION)
 
     ban_message = get_ban_message(user.pk)
     if ban_message is not None:

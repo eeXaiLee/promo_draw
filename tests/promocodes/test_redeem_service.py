@@ -77,6 +77,37 @@ def test_redeem_code_after_campaign_end(complete_user: User) -> None:
     assert result.failure_reason == "campaign_ended"
 
 
+def test_redeem_code_during_draw_transition_window(complete_user: User) -> None:
+    """С момента розыгрыша (21:00 9-го числа) до полуночи код не гасится."""
+    PromoCode.objects.create(code="FFFF6666")
+    during_transition = datetime.datetime(2026, 3, 9, 22, 0, tzinfo=MOSCOW_TZ)
+
+    with patch(
+        "apps.promocodes.services.timezone.now",
+        return_value=during_transition,
+    ):
+        result = redeem_code(complete_user, "FFFF6666")
+
+    assert not result.success
+    assert result.failure_reason == "period_transition"
+
+
+def test_redeem_code_right_after_transition_window(complete_user: User) -> None:
+    """С полуночи приём кодов на новый период уже открыт."""
+    PromoCode.objects.create(code="GGGG7777")
+    just_after_midnight = datetime.datetime(
+        2026, 3, 10, 0, 30, tzinfo=MOSCOW_TZ
+    )
+
+    with patch(
+        "apps.promocodes.services.timezone.now",
+        return_value=just_after_midnight,
+    ):
+        result = redeem_code(complete_user, "GGGG7777")
+
+    assert result.success
+
+
 def test_redeem_code_bans_after_three_failed_attempts(
     complete_user: User,
 ) -> None:

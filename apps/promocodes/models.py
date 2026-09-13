@@ -55,6 +55,10 @@ class PromoRedemptionAttempt(models.Model):
             "Акция ещё не началась",
         )
         CAMPAIGN_ENDED = "campaign_ended", "Акция завершена"
+        PERIOD_TRANSITION = (
+            "period_transition",
+            "Переход между периодами розыгрыша",
+        )
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
