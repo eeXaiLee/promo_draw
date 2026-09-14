@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+from unittest.mock import patch
+
 from django.contrib.auth import authenticate
+from django.test import Client
+from django.urls import reverse
 
 from apps.accounts.forms import RegistrationForm
 from apps.accounts.models import User
@@ -67,6 +71,19 @@ def test_registration_form_rejects_duplicate_email_different_case(
 
     assert not form.is_valid()
     assert "email" in form.errors
+
+
+def test_registration_succeeds_even_if_email_task_fails(
+    client: Client, db: None
+) -> None:
+    """Падение брокера при постановке письма не должно рвать регистрацию."""
+    with patch(
+        "apps.accounts.views.send_confirmation_email.delay",
+        side_effect=OSError("broker unavailable"),
+    ):
+        client.post(reverse("accounts:register"), VALID_DATA)
+
+    assert User.objects.filter(email=VALID_DATA["email"]).exists()
 
 
 def test_login_is_case_insensitive(db) -> None:

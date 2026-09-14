@@ -1,8 +1,14 @@
+from __future__ import annotations
+
+import logging
 import os
 import smtplib
+from typing import Any
 
 from celery import Celery
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -28,3 +34,19 @@ EMAIL_TASK_KWARGS = {
     "retry_backoff": True,
     "max_retries": 5,
 }
+
+
+def safe_delay(task: Any, *args: Any, **kwargs: Any) -> None:
+    """Ставит таску в очередь, не давая сбою брокера сломать вызывающий код.
+
+    Письмо не критично для результата операции (регистрация, погашение
+    промокода) — падение Redis не должно рвать уже успешно выполненное
+    действие с ошибкой 500. Логируем и идём дальше.
+    """
+    try:
+        task.delay(*args, **kwargs)
+    except Exception:
+        logger.exception(
+            "Не удалось поставить в очередь задачу %s",
+            getattr(task, "name", task),
+        )

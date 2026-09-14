@@ -15,6 +15,7 @@ from django.views.generic import CreateView, UpdateView
 from apps.giveaway.services import list_user_codes, winners_months_context
 from apps.promocodes.forms import PromoCodeForm
 from apps.promocodes.services import redeem_code
+from promo_draw.celery import safe_delay
 
 from .forms import ProfileForm, RegistrationForm
 from .models import User
@@ -46,7 +47,7 @@ class RegisterView(CreateView):
 
         response = super().form_valid(form)
         assert self.object is not None
-        send_confirmation_email.delay(self.object.pk)
+        safe_delay(send_confirmation_email, self.object.pk)
         return response
 
 
@@ -112,7 +113,7 @@ def resend_confirmation_email(request: HttpRequest) -> HttpResponse:
     if user.email_confirmed:
         messages.info(request, "Почта уже подтверждена.")
     else:
-        send_confirmation_email.delay(user.pk)
+        safe_delay(send_confirmation_email, user.pk)
         messages.success(request, "Письмо с подтверждением отправлено.")
     return redirect("accounts:dashboard")
 

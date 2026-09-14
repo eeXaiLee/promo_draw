@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.giveaway import promo_period
+from promo_draw.celery import safe_delay
 
 from .models import PromoCode, PromoRedemptionAttempt, code_validator
 from .rate_limit import get_ban_message, register_failed_attempt
@@ -99,7 +100,7 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
             user=user, code_input=code_input, success=True
         )
 
-    send_promo_registered_email.delay(promo_code.pk)
+    safe_delay(send_promo_registered_email, promo_code.pk)
 
     return RedemptionResult(
         success=True,

@@ -24,6 +24,23 @@ def test_redeem_code_success(complete_user: User) -> None:
     assert code.used_at is not None
 
 
+def test_redeem_code_succeeds_even_if_email_task_fails(
+    complete_user: User,
+) -> None:
+    """Падение брокера при постановке письма не должно рвать погашение."""
+    code = PromoCode.objects.create(code="ZZZZ9999")
+
+    with patch(
+        "apps.promocodes.services.send_promo_registered_email.delay",
+        side_effect=OSError("broker unavailable"),
+    ):
+        result = redeem_code(complete_user, "ZZZZ9999")
+
+    assert result.success
+    code.refresh_from_db()
+    assert code.used_by_id == complete_user.pk
+
+
 def test_redeem_code_already_used(complete_user: User) -> None:
     other = User.objects.create_user(
         email="other@example.com", password="testpass123"
