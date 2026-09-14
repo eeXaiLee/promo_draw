@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.contrib import admin, messages
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import URLPattern, path
@@ -29,6 +30,9 @@ class PromoCodeAdmin(admin.ModelAdmin):
         return custom_urls + super().get_urls()
 
     def upload_view(self, request: HttpRequest) -> HttpResponse:
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+
         if request.method == "POST":
             form = PromoCodeUploadForm(request.POST, request.FILES)
             if form.is_valid():
