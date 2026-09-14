@@ -13,13 +13,24 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest
 
 from .models import User
-from .rate_limit import get_client_ip, hit_rate_limit
+from .rate_limit import (
+    clear_failed_logins,
+    get_client_ip,
+    get_login_lock_message,
+    hit_rate_limit,
+    register_failed_login,
+)
 from .tasks import send_password_reset_email
 from .validators import normalize_phone, validate_birth_date
 
 
 class LoginForm(AuthenticationForm):
-    """Вход по email — те же поля Django, но с классами Bootstrap."""
+    """Вход по email — те же поля Django, но с классами Bootstrap.
+
+    Плюс защита от перебора пароля: связка email+IP лимитируется тем же
+    Redis, что и промокоды, с прогрессивной задержкой после превышения
+    порога попыток.
+    """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -37,6 +48,23 @@ class LoginForm(AuthenticationForm):
                 "placeholder": "••••••••",
             }
         )
+
+    def clean(self) -> dict[str, Any]:
+        email = (self.cleaned_data.get("username") or "").strip().lower()
+        ip = get_client_ip(self.request) if self.request else ""
+
+        lock_message = get_login_lock_message(email, ip)
+        if lock_message:
+            raise ValidationError(lock_message, code="login_locked")
+
+        try:
+            cleaned_data = super().clean()
+        except ValidationError:
+            register_failed_login(email, ip)
+            raise
+
+        clear_failed_logins(email, ip)
+        return cleaned_data
 
 
 class RegistrationForm(forms.ModelForm):
