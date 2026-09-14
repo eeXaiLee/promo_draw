@@ -107,11 +107,19 @@ def dashboard(request: HttpRequest) -> HttpResponse:
 @login_required
 @require_POST
 def resend_confirmation_email(request: HttpRequest) -> HttpResponse:
-    """Повторно отправляет письмо подтверждения почты."""
+    """Повторно отправляет письмо подтверждения почты — не чаще раза в
+    минуту, чтобы не засыпать себя письмами и не портить репутацию
+    отправляющего домена."""
     user = request.user
     assert isinstance(user, User)
     if user.email_confirmed:
         messages.info(request, "Почта уже подтверждена.")
+    elif hit_rate_limit(f"resend_confirmation:{user.pk}"):
+        messages.error(
+            request,
+            "Письмо уже отправлено. Подождите минуту перед повторной "
+            "отправкой.",
+        )
     else:
         safe_delay(send_confirmation_email, user.pk)
         messages.success(request, "Письмо с подтверждением отправлено.")

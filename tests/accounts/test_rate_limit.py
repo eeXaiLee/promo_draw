@@ -51,6 +51,23 @@ def test_registration_repeat_request_from_same_ip_is_rejected(
     assert not User.objects.filter(email="second@example.com").exists()
 
 
+def test_resend_confirmation_email_rate_limited(
+    complete_user: User, client: Client
+) -> None:
+    """Повторная отправка письма подтверждения чаще раза в минуту
+    отклоняется — иначе можно засыпать себя письмами по кругу."""
+    complete_user.email_confirmed = False
+    complete_user.save(update_fields=["email_confirmed"])
+    client.force_login(complete_user)
+
+    client.post(reverse("accounts:resend_confirmation_email"))
+    response = client.post(
+        reverse("accounts:resend_confirmation_email"), follow=True
+    )
+
+    assert "Подождите минуту" in response.content.decode()
+
+
 def test_login_locks_after_repeated_failures(
     complete_user: User, client: Client
 ) -> None:
