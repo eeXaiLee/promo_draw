@@ -4,8 +4,10 @@ from typing import Callable
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.views.generic import TemplateView
 
+from apps.giveaway import promo_period
 from apps.giveaway.services import winners_months_context
 
 STUB_PAGES: dict[str, tuple[str, str]] = {
@@ -54,7 +56,12 @@ STUB_PAGES: dict[str, tuple[str, str]] = {
 
 def home(request: HttpRequest) -> HttpResponse:
     """Стартовая страница — коротко про акцию и ссылки дальше."""
-    return render(request, "home.html", winners_months_context())
+    next_draw = promo_period.next_draw_moment(timezone.now())
+    context = {
+        "next_draw_iso": next_draw.isoformat() if next_draw else None,
+        **winners_months_context(),
+    }
+    return render(request, "home.html", context)
 
 
 def stub_view(slug: str) -> Callable[..., HttpResponse]:

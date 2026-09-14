@@ -11,6 +11,9 @@ DRAW_HOUR = 21
 CAMPAIGN_START = datetime.datetime(2026, 2, 9, 0, 0, tzinfo=MOSCOW_TZ)
 CAMPAIGN_END = datetime.datetime(2026, 12, 31, 23, 59, 59, tzinfo=MOSCOW_TZ)
 
+SUPER_DRAW_MOMENT = datetime.datetime(2027, 1, 1, 0, 0, tzinfo=MOSCOW_TZ)
+"""Момент финализации супер-розыгрыша."""
+
 MONTHLY_DRAW_MONTHS = range(3, 13)
 """Ежемесячные розыгрыши проходят с марта по декабрь — ровно 10 штук."""
 
@@ -81,3 +84,18 @@ def is_in_draw_transition_window(moment: datetime.datetime) -> bool:
         moment_msk.date(), datetime.time(DRAW_HOUR, 0), MOSCOW_TZ
     )
     return moment_msk >= boundary_moment
+
+
+def next_draw_moment(moment: datetime.datetime) -> datetime.datetime | None:
+    """Ближайший будущий розыгрыш (обычный или супер) после `moment`.
+
+    Таймер независимо от часового пояса браузера.
+    `None`, если все розыгрыши уже прошли.
+    """
+    candidates = [
+        datetime.datetime.combine(day, datetime.time(DRAW_HOUR, 0), MOSCOW_TZ)
+        for day in monthly_draw_dates()
+    ]
+    candidates.append(SUPER_DRAW_MOMENT)
+    upcoming = [candidate for candidate in candidates if candidate > moment]
+    return min(upcoming) if upcoming else None

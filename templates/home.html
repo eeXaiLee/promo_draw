@@ -41,38 +41,40 @@
     </div>
   </section>
 
-  <div class="timer-card">
-    <div class="timer-top">
-      <h2 class="timer-title">Розыгрыш через:</h2>
-      <div class="timer-row">
-        <div class="timer-segment">
-          <span class="timer-number" data-timer-value="days">—</span>
-          <span class="timer-unit" data-timer-unit="days">дней</span>
-        </div>
-        <div class="timer-segment">
-          <span class="timer-number" data-timer-value="hours">—</span>
-          <span class="timer-unit" data-timer-unit="hours">часов</span>
-        </div>
-        <div class="timer-segment">
-          <span class="timer-number" data-timer-value="minutes">—</span>
-          <span class="timer-unit" data-timer-unit="minutes">минут</span>
-        </div>
-        <div class="timer-segment">
-          <span class="timer-number" data-timer-value="seconds">—</span>
-          <span class="timer-unit" data-timer-unit="seconds">секунд</span>
+  {% if next_draw_iso %}
+    <div class="timer-card" data-next-draw="{{ next_draw_iso }}">
+      <div class="timer-top">
+        <h2 class="timer-title">Розыгрыш через:</h2>
+        <div class="timer-row">
+          <div class="timer-segment">
+            <span class="timer-number" data-timer-value="days">—</span>
+            <span class="timer-unit" data-timer-unit="days">дней</span>
+          </div>
+          <div class="timer-segment">
+            <span class="timer-number" data-timer-value="hours">—</span>
+            <span class="timer-unit" data-timer-unit="hours">часов</span>
+          </div>
+          <div class="timer-segment">
+            <span class="timer-number" data-timer-value="minutes">—</span>
+            <span class="timer-unit" data-timer-unit="minutes">минут</span>
+          </div>
+          <div class="timer-segment">
+            <span class="timer-number" data-timer-value="seconds">—</span>
+            <span class="timer-unit" data-timer-unit="seconds">секунд</span>
+          </div>
         </div>
       </div>
+      {% if user.is_authenticated %}
+        <a href="{% url 'accounts:dashboard' %}" class="btn timer-cta">
+          Активировать код
+        </a>
+      {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn timer-cta">
+          Активировать код
+        </a>
+      {% endif %}
     </div>
-    {% if user.is_authenticated %}
-      <a href="{% url 'accounts:dashboard' %}" class="btn timer-cta">
-        Активировать код
-      </a>
-    {% else %}
-      <a href="{% url 'accounts:register' %}" class="btn timer-cta">
-        Активировать код
-      </a>
-    {% endif %}
-  </div>
+  {% endif %}
 
   <section class="win-section">
     <h2 class="section-title">Как получить шанс на победу?</h2>
@@ -515,16 +517,10 @@
         return many;
       }
 
-      function nextDrawDate() {
-        var now = new Date();
-        var target = new Date(now.getFullYear(), now.getMonth(), 10, 0, 0, 0);
-        if (target <= now) {
-          target = new Date(now.getFullYear(), now.getMonth() + 1, 10, 0, 0, 0);
-        }
-        return target;
-      }
+      var timerCard = document.querySelector(".timer-card");
+      if (!timerCard) return;
 
-      var target = nextDrawDate();
+      var target = new Date(timerCard.dataset.nextDraw);
       var numberEls = {
         days: document.querySelector('[data-timer-value="days"]'),
         hours: document.querySelector('[data-timer-value="hours"]'),
