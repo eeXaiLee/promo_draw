@@ -7,7 +7,7 @@ from django.urls import reverse
 from apps.accounts import rate_limit
 from apps.accounts.forms import PasswordResetRequestForm
 from apps.accounts.models import User
-from apps.accounts.rate_limit import LOGIN_FAILS_THRESHOLD
+from apps.accounts.rate_limit import LOGIN_FAILS_THRESHOLD, get_client_ip
 
 
 def test_password_reset_repeat_request_is_not_sent_twice(
@@ -110,3 +110,41 @@ def test_clear_failed_logins_removes_lock() -> None:
     rate_limit.clear_failed_logins(email, ip)
 
     assert rate_limit.get_login_lock_message(email, ip) is None
+
+
+def test_get_client_ip_trusts_last_proxies_not_first_entry() -> None:
+    """Значение целиком под контролем клиента, кроме последних записей —
+    их дописывают наши собственные прокси (хостовый nginx + контейнерный)."""
+    request = RequestFactory().get(
+        "/",
+        HTTP_X_FORWARDED_FOR="1.2.3.4, 10.0.0.5, 203.0.113.9, 172.18.0.1",
+    )
+
+    assert get_client_ip(request) == "203.0.113.9"
+
+
+def test_get_client_ip_ignores_extra_fake_entries_prepended_by_client() -> None:
+    """Сколько бы клиент ни приписал своих значений впереди — результат
+    один и тот же, потому что считаем всегда с конца, а не с начала."""
+    real_ip = "203.0.113.9"
+    request_no_fakes = RequestFactory().get(
+        "/", HTTP_X_FORWARDED_FOR=f"{real_ip}, 172.18.0.1"
+    )
+    request_with_fakes = RequestFactory().get(
+        "/", HTTP_X_FORWARDED_FOR=f"1.2.3.4, 9.9.9.9, {real_ip}, 172.18.0.1"
+    )
+
+    assert get_client_ip(request_no_fakes) == real_ip
+    assert get_client_ip(request_with_fakes) == real_ip
+
+
+def test_get_client_ip_falls_back_to_remote_addr_when_header_too_short() -> (
+    None
+):
+    """Записей меньше, чем доверенных прокси — вслепую не считаем,
+    берём REMOTE_ADDR."""
+    request = RequestFactory().get(
+        "/", HTTP_X_FORWARDED_FOR="1.2.3.4", REMOTE_ADDR="192.0.2.1"
+    )
+
+    assert get_client_ip(request) == "192.0.2.1"

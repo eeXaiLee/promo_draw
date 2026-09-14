@@ -98,9 +98,19 @@ def hit_rate_limit(key: str) -> bool:
     return not added
 
 
+NUM_TRUSTED_PROXIES = 2
+"""Хостовый nginx (TLS) + контейнерный nginx."""
+
+
 def get_client_ip(request: HttpRequest) -> str:
-    """IP клиента с учётом двух nginx перед приложением."""
+    """IP клиента — запись NUM_TRUSTED_PROXIES с конца X-Forwarded-For.
+
+    Начало заголовка задаёт клиент и ему нельзя доверять, а в конец каждый
+    наш прокси дописывает IP того, от кого реально принял соединение.
+    """
     forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if forwarded_for:
-        return forwarded_for.split(",")[0].strip()
+        parts = [part.strip() for part in forwarded_for.split(",")]
+        if len(parts) >= NUM_TRUSTED_PROXIES:
+            return parts[-NUM_TRUSTED_PROXIES]
     return request.META.get("REMOTE_ADDR", "")
