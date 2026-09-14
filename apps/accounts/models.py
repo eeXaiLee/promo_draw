@@ -16,6 +16,10 @@ PUBLIC_ID_OFFSET = 483_916_207
 class UserManager(BaseUserManager["User"]):
     """Создаёт пользователей по email вместо username."""
 
+    def get_by_natural_key(self, email: str | None) -> User:
+        """Поиск при входе — без учёта регистра email."""
+        return self.get(**{f"{self.model.USERNAME_FIELD}__iexact": email})
+
     def create_user(
         self, email: str, password: str | None = None, **extra_fields: Any
     ) -> User:
@@ -90,6 +94,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def save(self, *args: Any, **kwargs: Any) -> None:
+        if self.email:
+            self.email = self.email.lower()
         super().save(*args, **kwargs)
         if self.public_id is None:
             self.public_id = PUBLIC_ID_OFFSET + self.pk

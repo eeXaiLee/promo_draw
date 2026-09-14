@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from django.contrib.auth import authenticate
+
 from apps.accounts.forms import RegistrationForm
+from apps.accounts.models import User
 
 VALID_DATA = {
     "email": "newuser@example.com",
@@ -42,3 +45,35 @@ def test_registration_form_rejects_weak_password(db) -> None:
 
     assert not form.is_valid()
     assert "password1" in form.errors
+
+
+def test_registration_form_lowercases_email(db) -> None:
+    """«Ivan@Mail.ru» и «ivan@mail.ru» — один и тот же адрес."""
+    data = VALID_DATA | {"email": "NewUser@Example.com"}
+    form = RegistrationForm(data=data)
+
+    assert form.is_valid(), form.errors
+    assert form.cleaned_data["email"] == "newuser@example.com"
+
+
+def test_registration_form_rejects_duplicate_email_different_case(
+    db,
+) -> None:
+    """Тот же email в другом регистре — уже занят, а не новый аккаунт."""
+    User.objects.create_user(email="ivan@mail.ru", password="testpass123")
+    data = VALID_DATA | {"email": "Ivan@Mail.ru"}
+
+    form = RegistrationForm(data=data)
+
+    assert not form.is_valid()
+    assert "email" in form.errors
+
+
+def test_login_is_case_insensitive(db) -> None:
+    """Вход с другим регистром email, чем при регистрации, работает."""
+    User.objects.create_user(email="ivan@mail.ru", password="testpass123")
+
+    user = authenticate(username="Ivan@Mail.ru", password="testpass123")
+
+    assert user is not None
+    assert user.email == "ivan@mail.ru"

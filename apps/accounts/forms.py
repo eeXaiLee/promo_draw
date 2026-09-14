@@ -73,6 +73,10 @@ class RegistrationForm(forms.ModelForm):
             ),
         }
 
+    def clean_email(self) -> str:
+        """Возвращает email из cleaned_data в нижнем регистре."""
+        return self.cleaned_data["email"].lower()
+
     def clean_personal_data_consent(self) -> bool:
         consent = self.cleaned_data.get("personal_data_consent")
         if not consent:
