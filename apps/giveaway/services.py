@@ -205,9 +205,10 @@ def winners_months_context() -> dict[str, object]:
         }
         for month in range(1, 13)
     ]
-    winners_active_index = next(
-        (i for i, month in enumerate(winners_months) if month["draw"]), 0
-    )
+    finalized_indexes = [
+        i for i, month in enumerate(winners_months) if month["draw"]
+    ]
+    winners_active_index = finalized_indexes[-1] if finalized_indexes else 0
     return {
         "winners_months": winners_months,
         "winners_active_index": winners_active_index,

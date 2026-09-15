@@ -20,7 +20,7 @@ class PromoCodeForm(forms.Form):
         max_length=PROMO_CODE_LENGTH,
         widget=forms.TextInput(
             attrs={
-                "placeholder": "XXXXXXXXXXXXXXXX",
+                "placeholder": "X" * PROMO_CODE_LENGTH,
                 "autocomplete": "off",
                 "class": "dashboard-code-input",
             }

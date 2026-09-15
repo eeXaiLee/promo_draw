@@ -29,3 +29,27 @@ def test_remember_me_unchecked_expires_session_on_browser_close(
     _login(client, complete_user, remember_me=False)
 
     assert client.session.get_expire_at_browser_close() is True
+
+
+def test_logged_in_user_is_redirected_away_from_login_page(
+    client: Client, complete_user: User
+) -> None:
+    """Вошедшему незачем видеть форму входа — сразу в кабинет."""
+    client.force_login(complete_user)
+
+    response = client.get(reverse("accounts:login"))
+
+    assert response.status_code == 302
+    assert response["Location"] == reverse("accounts:dashboard")
+
+
+def test_logged_in_user_is_redirected_away_from_register_page(
+    client: Client, complete_user: User
+) -> None:
+    """Вошедшему незачем видеть форму регистрации — сразу в кабинет."""
+    client.force_login(complete_user)
+
+    response = client.get(reverse("accounts:register"))
+
+    assert response.status_code == 302
+    assert response["Location"] == reverse("accounts:dashboard")

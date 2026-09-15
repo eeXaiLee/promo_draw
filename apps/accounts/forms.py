@@ -199,7 +199,7 @@ class ProfileForm(forms.ModelForm):
             "patronymic": "Отчество",
             "birth_date": "Дата рождения",
             "phone": "Телефон",
-            "address": "Адрес проживания",
+            "address": "Адрес доставки приза",
             "notify_promo_registered": (
                 "Присылать письмо при регистрации промокода"
             ),

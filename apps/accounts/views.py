@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseBase
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.encoding import force_str
@@ -31,6 +31,7 @@ class LoginView(auth_views.LoginView):
 
     template_name = "accounts/login.html"
     form_class = LoginForm
+    redirect_authenticated_user = True
 
     def form_valid(self, form: AuthenticationForm) -> HttpResponse:
         response = super().form_valid(form)
@@ -45,6 +46,13 @@ class RegisterView(CreateView):
     form_class = RegistrationForm
     template_name = "accounts/register.html"
     success_url = reverse_lazy("accounts:register_done")
+
+    def dispatch(
+        self, request: HttpRequest, *args: object, **kwargs: object
+    ) -> HttpResponseBase:
+        if request.user.is_authenticated:
+            return redirect("accounts:dashboard")
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form: RegistrationForm) -> HttpResponse:
         email = form.cleaned_data["email"]
