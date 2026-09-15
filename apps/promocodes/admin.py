@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from django.contrib import admin, messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import URLPattern, path
@@ -36,16 +36,22 @@ class PromoCodeAdmin(admin.ModelAdmin):
         if request.method == "POST":
             form = PromoCodeUploadForm(request.POST, request.FILES)
             if form.is_valid():
-                result = import_promo_codes_from_xlsx(form.cleaned_data["file"])
-                messages.success(
-                    request,
-                    f"Обработано строк: {result.total_rows}. "
-                    f"Добавлено: {result.added}. "
-                    f"Отклонено (неверный формат): "
-                    f"{result.rejected_invalid_format}. "
-                    f"Отклонено (дубликат): {result.rejected_duplicate}.",
-                )
-                return redirect("admin:promocodes_promocode_changelist")
+                try:
+                    result = import_promo_codes_from_xlsx(
+                        form.cleaned_data["file"]
+                    )
+                except ValidationError as error:
+                    form.add_error("file", error)
+                else:
+                    messages.success(
+                        request,
+                        f"Обработано строк: {result.total_rows}. "
+                        f"Добавлено: {result.added}. "
+                        f"Отклонено (неверный формат): "
+                        f"{result.rejected_invalid_format}. "
+                        f"Отклонено (дубликат): {result.rejected_duplicate}.",
+                    )
+                    return redirect("admin:promocodes_promocode_changelist")
         else:
             form = PromoCodeUploadForm()
 

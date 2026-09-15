@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import zipfile
 from dataclasses import dataclass
 
 import openpyxl
@@ -125,7 +126,13 @@ def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
     Отбрасывает строки неверного формата и дубли — как внутри самого
     файла, так и уже существующие в базе.
     """
-    workbook = openpyxl.load_workbook(file, read_only=True)
+    try:
+        workbook = openpyxl.load_workbook(file, read_only=True)
+    except (zipfile.BadZipFile, KeyError) as error:
+        raise ValidationError(
+            "Файл не читается как xlsx — проверьте, что это не .xls и "
+            "не повреждён."
+        ) from error
     sheet = workbook.active
 
     raw_values = []

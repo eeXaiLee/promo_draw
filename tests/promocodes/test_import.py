@@ -3,6 +3,8 @@ from __future__ import annotations
 import io
 
 import openpyxl
+import pytest
+from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.datastructures import MultiValueDict
 
@@ -43,6 +45,17 @@ def test_import_counts_added_rows_without_duplicates(db) -> None:
     assert result.rejected_invalid_format == 1
     assert PromoCode.objects.filter(code="BBBB2222").exists()
     assert PromoCode.objects.filter(code="CCCC3333").exists()
+
+
+def test_import_raises_validation_error_for_unreadable_file(db) -> None:
+    """Файл, который не открывается как xlsx, не роняет импорт исключением
+    openpyxl, а даёт понятную ValidationError."""
+    upload = SimpleUploadedFile(
+        "codes.xlsx", b"not a real xlsx file", content_type=XLSX_CONTENT_TYPE
+    )
+
+    with pytest.raises(ValidationError, match="не читается как xlsx"):
+        import_promo_codes_from_xlsx(upload)
 
 
 def test_upload_form_rejects_oversized_file() -> None:
