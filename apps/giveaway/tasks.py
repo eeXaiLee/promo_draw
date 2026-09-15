@@ -4,6 +4,7 @@ from celery import shared_task
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 
 from promo_draw.celery import EMAIL_TASK_KWARGS
@@ -12,6 +13,7 @@ from . import promo_period
 from .models import Winner
 from .services import (
     MOSCOW_TZ,
+    draw_display_name,
     finalize_draw,
     get_or_create_monthly_draw,
     get_or_create_monthly_draw_for_period,
@@ -65,17 +67,25 @@ def finalize_super_draw() -> None:
 def send_winner_email(winner_id: int) -> None:
     """Письмо победителю — обязательное, без возможности отключить."""
     try:
-        winner = Winner.objects.select_related("user", "prize").get(
+        winner = Winner.objects.select_related("user", "prize", "draw").get(
             pk=winner_id
         )
     except Winner.DoesNotExist:
         return
 
+    dashboard_url = settings.SITE_URL + reverse("accounts:dashboard")
     body = render_to_string(
-        "giveaway/emails/winner.txt", {"prize": winner.prize.title}
+        "giveaway/emails/winner.txt",
+        {
+            "prize": winner.prize.title,
+            "draw_name": draw_display_name(
+                winner.draw.period_end, winner.draw.kind
+            ),
+            "dashboard_url": dashboard_url,
+        },
     )
     send_mail(
-        subject="Вы выиграли! — promo_draw",
+        subject="Вы выиграли приз от Эскимос!",
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[winner.user.email],

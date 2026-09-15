@@ -146,8 +146,8 @@ def get_or_create_super_draw() -> MonthlyDraw:
     return draw
 
 
-def _draw_display_name(period_end: datetime.date, kind: str) -> str:
-    """Название акции для колонки «Акция» в «Моих кодах»."""
+def draw_display_name(period_end: datetime.date, kind: str) -> str:
+    """Человекочитаемое название конкретного розыгрыша."""
     if kind == DrawKind.SUPER:
         return f"Супер-розыгрыш {period_end.year}"
     return f"Розыгрыш за {format_date(period_end, 'F Y')}"
@@ -238,14 +238,14 @@ def list_user_codes(user: User) -> UserCodesSummary:
         if winner is not None:
             status = "won"
             won_count += 1
-            campaign = _draw_display_name(
+            campaign = draw_display_name(
                 winner.draw.period_end, winner.draw.kind
             )
         else:
             used_date = promo_code.used_at.astimezone(MOSCOW_TZ).date()
             period = promo_period.monthly_period_for_date(used_date)
             if period is None:
-                campaign = _draw_display_name(
+                campaign = draw_display_name(
                     promo_period.CAMPAIGN_END.date(), DrawKind.SUPER
                 )
                 status = "pending"
@@ -253,7 +253,7 @@ def list_user_codes(user: User) -> UserCodesSummary:
             else:
                 period_start, period_end = period
                 draw = monthly_draws_by_period.get((period_start, period_end))
-                campaign = _draw_display_name(period_end, DrawKind.MONTHLY)
+                campaign = draw_display_name(period_end, DrawKind.MONTHLY)
                 if draw is not None and draw.is_finalized:
                     status = "no_win"
                     no_win_count += 1

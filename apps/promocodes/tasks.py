@@ -29,7 +29,7 @@ def send_promo_registered_email(promo_code_id: int) -> None:
         "promocodes/emails/promo_registered.txt", {"code": promo_code.code}
     )
     send_mail(
-        subject="Промокод зарегистрирован — promo_draw",
+        subject="Промокод зарегистрирован — Эскимос",
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],

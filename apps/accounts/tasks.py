@@ -32,7 +32,7 @@ def send_confirmation_email(user_id: int) -> None:
         "accounts/emails/confirm_email.txt", {"confirm_url": confirm_url}
     )
     send_mail(
-        subject="Подтверждение регистрации — promo_draw",
+        subject="Подтверждение регистрации — Эскимос",
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
@@ -56,7 +56,7 @@ def send_password_reset_email(user_id: int) -> None:
         "accounts/emails/password_reset.txt", {"reset_url": reset_url}
     )
     send_mail(
-        subject="Сброс пароля — promo_draw",
+        subject="Сброс пароля — Эскимос",
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
