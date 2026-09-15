@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from django.contrib import messages
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
@@ -17,11 +19,24 @@ from apps.promocodes.forms import PromoCodeForm
 from apps.promocodes.services import redeem_code
 from promo_draw.celery import safe_delay
 
-from .forms import ProfileForm, RegistrationForm
+from .forms import LoginForm, ProfileForm, RegistrationForm
 from .models import User
 from .rate_limit import get_client_ip, hit_rate_limit
 from .tasks import send_confirmation_email
 from .tokens import email_confirmation_token
+
+
+class LoginView(auth_views.LoginView):
+    """Вход с учётом чекбокса «Запомнить на этом устройстве»."""
+
+    template_name = "accounts/login.html"
+    form_class = LoginForm
+
+    def form_valid(self, form: AuthenticationForm) -> HttpResponse:
+        response = super().form_valid(form)
+        if not self.request.POST.get("remember_me"):
+            self.request.session.set_expiry(0)
+        return response
 
 
 class RegisterView(CreateView):

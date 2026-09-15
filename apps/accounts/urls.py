@@ -2,7 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
 from . import views
-from .forms import LoginForm, PasswordResetRequestForm
+from .forms import PasswordResetRequestForm
 
 app_name = "accounts"
 
@@ -14,13 +14,7 @@ urlpatterns = [
         views.confirm_email,
         name="confirm_email",
     ),
-    path(
-        "login/",
-        auth_views.LoginView.as_view(
-            template_name="accounts/login.html", form_class=LoginForm
-        ),
-        name="login",
-    ),
+    path("login/", views.LoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path(
         "reset-password/",
