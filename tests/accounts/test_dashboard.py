@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import datetime
+from zoneinfo import ZoneInfo
+
 from django.test import Client
 from django.urls import reverse
 
 from apps.accounts.models import User
 from apps.promocodes.models import PromoCode
+
+MOSCOW_TZ = ZoneInfo("Europe/Moscow")
 
 
 def test_dashboard_shows_promo_code_form(
@@ -30,6 +35,25 @@ def test_dashboard_accepts_valid_code(
     )
 
     assert "Промокод принят" in response.content.decode()
+
+
+def test_dashboard_shows_redemption_date_in_moscow_time(
+    client: Client, complete_user: User
+) -> None:
+    """Код, погашенный после полуночи по Москве, показан тем же числом,
+    а не предыдущим по UTC (в это время в UTC ещё вчера)."""
+    PromoCode.objects.create(
+        code="LATE0001",
+        used_by=complete_user,
+        used_at=datetime.datetime(2026, 3, 10, 0, 30, tzinfo=MOSCOW_TZ),
+    )
+    client.force_login(complete_user)
+
+    response = client.get(reverse("accounts:dashboard"))
+    content = response.content.decode()
+
+    assert "10.03.2026" in content
+    assert "09.03.2026" not in content
 
 
 def test_dashboard_rejects_unknown_code(
