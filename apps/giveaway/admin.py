@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
@@ -44,10 +44,21 @@ class MonthlyDrawAdmin(admin.ModelAdmin):
     ) -> None:
         assert isinstance(request.user, User)
         total_winners = 0
+        short_draws = []
         for draw in queryset:
             winners = finalize_draw(draw, determined_by=request.user)
             total_winners += len(winners)
+            if len(winners) < draw.prize_count:
+                short_draws.append(draw)
         self.message_user(request, f"Определено победителей: {total_winners}")
+        if short_draws:
+            draws_text = ", ".join(str(draw) for draw in short_draws)
+            self.message_user(
+                request,
+                f"Победителей меньше, чем призов, в розыгрышах: "
+                f"{draws_text}. Проверьте пул активных призов.",
+                level=messages.WARNING,
+            )
 
 
 @admin.register(Winner)

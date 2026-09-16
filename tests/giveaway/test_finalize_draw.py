@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import datetime
+import logging
+
+import pytest
 
 from apps.accounts.models import User
 from apps.giveaway.models import DrawKind, MonthlyDraw, Prize, Winner
@@ -138,6 +141,45 @@ def test_finalize_draw_excludes_users_who_already_won_same_kind(
     winner_user_ids = {w.user_id for w in winners}
     assert already_won_user.pk not in winner_user_ids
     assert winner_user_ids == {u.pk for u in other_users}
+
+
+def test_finalize_draw_warns_when_active_prizes_run_short(
+    db, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Недостача активных призов не закрывает розыгрыш молча — в лог
+    уходит предупреждение с явной причиной."""
+    Prize.objects.update(is_active=False)
+    Prize.objects.create(title="Единственный приз")
+    draw = _monthly_draw(DRAW_DATE, prize_count=2)
+    users = [
+        User.objects.create_user(email=f"u{i}@example.com", password="x")
+        for i in range(3)
+    ]
+    for i, user in enumerate(users):
+        _redeem(user, f"CODE000{i}", DRAW_DATE)
+
+    with caplog.at_level(logging.WARNING, logger="apps.giveaway.services"):
+        winners = finalize_draw(draw)
+
+    assert len(winners) == 1
+    assert len(caplog.records) == 1
+    assert "активных призов меньше" in caplog.records[0].getMessage()
+
+
+def test_finalize_draw_warns_when_participants_run_short(
+    two_prizes: list[Prize], caplog: pytest.LogCaptureFixture
+) -> None:
+    """Недостача участников (не призов) — тоже в лог, с другой причиной."""
+    draw = _monthly_draw(DRAW_DATE, prize_count=2)
+    user = User.objects.create_user(email="only@example.com", password="x")
+    _redeem(user, "CODE0001", DRAW_DATE)
+
+    with caplog.at_level(logging.WARNING, logger="apps.giveaway.services"):
+        winners = finalize_draw(draw)
+
+    assert len(winners) == 1
+    assert len(caplog.records) == 1
+    assert "участников меньше" in caplog.records[0].getMessage()
 
 
 def test_finalize_draw_super_includes_previous_monthly_winners(

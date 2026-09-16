@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import logging
 import secrets
 from dataclasses import dataclass
 from zoneinfo import ZoneInfo
@@ -15,6 +16,8 @@ from . import promo_period
 from .models import DrawKind, MonthlyDraw, Prize, Winner
 
 MOSCOW_TZ = ZoneInfo("Europe/Moscow")
+
+logger = logging.getLogger(__name__)
 
 
 def moscow_day_bounds(
@@ -98,6 +101,25 @@ def finalize_draw(
 
         draw.is_finalized = True
         draw.save(update_fields=["is_finalized"])
+
+    if len(winners) < draw.prize_count:
+        if len(prizes) < draw.prize_count:
+            cause = (
+                f"активных призов меньше, чем нужно "
+                f"({len(prizes)} из {draw.prize_count})"
+            )
+        else:
+            cause = (
+                f"участников меньше, чем призов "
+                f"({len(winners)} из {draw.prize_count})"
+            )
+        logger.warning(
+            "Розыгрыш %s закрыт с нехваткой победителей: %d из %d — %s",
+            draw,
+            len(winners),
+            draw.prize_count,
+            cause,
+        )
 
     for winner in winners:
         send_winner_email.delay(winner.pk)
