@@ -110,6 +110,9 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
     )
 
 
+IMPORT_BATCH_SIZE = 2000
+
+
 @dataclass
 class ImportResult:
     """Итог загрузки промокодов из xlsx — для отчёта в админке."""
@@ -120,11 +123,35 @@ class ImportResult:
     rejected_duplicate: int
 
 
+def _import_batch(batch: list[str], seen: set[str]) -> tuple[int, int]:
+    """Пишет одну пачку кодов, возвращает (добавлено, дублей).
+
+    `seen` копится по всему файлу — ловит дубль внутри ещё не
+    закоммиченной пачки, который SELECT по этой же пачке не увидит.
+    """
+    existing = set(
+        PromoCode.objects.filter(code__in=batch).values_list("code", flat=True)
+    )
+    new_codes = []
+    rejected_duplicate = 0
+    for code in batch:
+        if code in existing or code in seen:
+            rejected_duplicate += 1
+            continue
+        seen.add(code)
+        new_codes.append(code)
+
+    PromoCode.objects.bulk_create(
+        [PromoCode(code=code) for code in new_codes], ignore_conflicts=True
+    )
+    return len(new_codes), rejected_duplicate
+
+
 def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
     """Читает первый столбец xlsx-файла и добавляет новые промокоды.
 
-    Отбрасывает строки неверного формата и дубли — как внутри самого
-    файла, так и уже существующие в базе.
+    Отбрасывает строки неверного формата и дубли — как внутри самого файла,
+    так и уже существующие в базе. Читает и пишет пачками, а не всё разом.
     """
     try:
         workbook = openpyxl.load_workbook(file, read_only=True)
@@ -135,49 +162,41 @@ def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
         ) from error
     sheet = workbook.active
 
-    raw_values = []
+    total_rows = 0
+    added = 0
+    rejected_invalid_format = 0
+    rejected_duplicate = 0
+    seen: set[str] = set()
+    batch: list[str] = []
+
     for row in sheet.iter_rows(values_only=True):
         if not row or row[0] is None:
             continue
         value = str(row[0]).strip().upper()
-        if value:
-            raw_values.append(value)
+        if not value:
+            continue
+        total_rows += 1
 
-    valid_codes = []
-    rejected_invalid_format = 0
-    for value in raw_values:
         try:
             code_validator(value)
         except ValidationError:
             rejected_invalid_format += 1
-        else:
-            valid_codes.append(value)
-
-    existing = set(
-        PromoCode.objects.filter(code__in=valid_codes).values_list(
-            "code", flat=True
-        )
-    )
-
-    seen: set[str] = set()
-    new_codes = []
-    rejected_duplicate = 0
-    for code in valid_codes:
-        if code in existing or code in seen:
-            rejected_duplicate += 1
             continue
-        seen.add(code)
-        new_codes.append(code)
 
-    PromoCode.objects.bulk_create(
-        [PromoCode(code=code) for code in new_codes],
-        batch_size=1000,
-        ignore_conflicts=True,
-    )
-    added = len(new_codes)
+        batch.append(value)
+        if len(batch) >= IMPORT_BATCH_SIZE:
+            batch_added, batch_rejected = _import_batch(batch, seen)
+            added += batch_added
+            rejected_duplicate += batch_rejected
+            batch = []
+
+    if batch:
+        batch_added, batch_rejected = _import_batch(batch, seen)
+        added += batch_added
+        rejected_duplicate += batch_rejected
 
     return ImportResult(
-        total_rows=len(raw_values),
+        total_rows=total_rows,
         added=added,
         rejected_invalid_format=rejected_invalid_format,
         rejected_duplicate=rejected_duplicate,

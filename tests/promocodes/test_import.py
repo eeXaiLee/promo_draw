@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.datastructures import MultiValueDict
 
+from apps.promocodes import services
 from apps.promocodes.forms import MAX_UPLOAD_SIZE_MB, PromoCodeUploadForm
 from apps.promocodes.models import PromoCode
 from apps.promocodes.services import import_promo_codes_from_xlsx
@@ -45,6 +46,25 @@ def test_import_counts_added_rows_without_duplicates(db) -> None:
     assert result.rejected_invalid_format == 1
     assert PromoCode.objects.filter(code="BBBB2222").exists()
     assert PromoCode.objects.filter(code="CCCC3333").exists()
+
+
+def test_import_dedupes_across_batch_boundary(db, monkeypatch) -> None:
+    """Дубль, чьи вхождения попали в разные пачки, всё равно даёт одну
+    запись, а не две — батчинг не должен разваливать дедуп по файлу."""
+    monkeypatch.setattr(services, "IMPORT_BATCH_SIZE", 2)
+    content = _build_xlsx(
+        ["AAAA1111", "BBBB2222", "CCCC3333", "AAAA1111", "DDDD4444"]
+    )
+    upload = SimpleUploadedFile(
+        "codes.xlsx", content, content_type=XLSX_CONTENT_TYPE
+    )
+
+    result = import_promo_codes_from_xlsx(upload)
+
+    assert result.total_rows == 5
+    assert result.added == 4
+    assert result.rejected_duplicate == 1
+    assert PromoCode.objects.filter(code="AAAA1111").count() == 1
 
 
 def test_import_raises_validation_error_for_unreadable_file(db) -> None:
