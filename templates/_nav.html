@@ -1,35 +1,22 @@
 {% load static %}
-{% if user.is_authenticated %}
-  <nav class="nav nav-guest">
-    <div class="nav-links">
-      <a href="{% url 'contacts' %}">Контакты</a>
-      <a href="{% url 'about' %}">О нас</a>
-      <a href="{% url 'promotions' %}">Акции</a>
-      <a href="{% url 'home' %}#winners">Победители</a>
-    </div>
-    <a href="{% url 'home' %}" class="nav-logo">
-      <img src="{% static 'img/shared/logo.svg' %}" alt="Эскимос">
-    </a>
-    <div class="nav-actions">
+<nav class="nav nav-guest">
+  <div class="nav-links">
+    <a href="{% url 'contacts' %}">Контакты</a>
+    <a href="{% url 'about' %}">О нас</a>
+    <a href="{% url 'promotions' %}">Акции</a>
+    <a href="{% url 'home' %}#winners">Победители</a>
+  </div>
+  <a href="{% url 'home' %}" class="nav-logo">
+    <img src="{% static 'img/shared/logo.svg' %}" alt="Эскимос">
+  </a>
+  <div class="nav-actions">
+    {% if user.is_authenticated %}
       {% include "_nav_user_menu.html" %}
-    </div>
-  </nav>
-{% else %}
-  <nav class="nav nav-guest">
-    <div class="nav-links">
-      <a href="{% url 'contacts' %}">Контакты</a>
-      <a href="{% url 'about' %}">О нас</a>
-      <a href="{% url 'promotions' %}">Акции</a>
-      <a href="{% url 'home' %}#winners">Победители</a>
-    </div>
-    <a href="{% url 'home' %}" class="nav-logo">
-      <img src="{% static 'img/shared/logo.svg' %}" alt="Эскимос">
-    </a>
-    <div class="nav-actions">
+    {% else %}
       <a href="https://t.me/eeXaiLee" class="nav-telegram" aria-label="Telegram">
         <img src="{% static 'img/shared/telegram.svg' %}" alt="">
       </a>
       <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-pill">Войти в ЛК</a>
-    </div>
-  </nav>
-{% endif %}
+    {% endif %}
+  </div>
+</nav>

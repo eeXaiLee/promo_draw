@@ -114,7 +114,7 @@ promo_draw/
 │   └── celery.py, wsgi.py, asgi.py
 ├── templates/
 │   ├── base.html, home.html, stub.html
-│   ├── _nav.html, _account_nav.html, _account_faq.html, _site_footer.html, _winners_months.html
+│   ├── _nav.html, _account_nav.html, _faq.html, _site_footer.html, _winners_months.html
 │   ├── accounts/             # формы входа/регистрации/профиля, письма (emails/)
 │   ├── giveaway/             # письма (emails/)
 │   ├── promocodes/emails/

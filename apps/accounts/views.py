@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from django.contrib import messages
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
@@ -18,6 +20,7 @@ from apps.giveaway.services import list_user_codes, winners_months_context
 from apps.promocodes.forms import PromoCodeForm
 from apps.promocodes.services import redeem_code
 from promo_draw.celery import safe_delay
+from promo_draw.views import FAQ_ITEMS
 
 from .forms import LoginForm, ProfileForm, RegistrationForm
 from .models import User
@@ -122,6 +125,7 @@ def dashboard(request: HttpRequest) -> HttpResponse:
     context: dict[str, object] = {
         "form": form,
         "codes": list_user_codes(user),
+        "faq_items": FAQ_ITEMS,
         **winners_months_context(),
     }
     return render(request, "accounts/dashboard.html", context)
@@ -164,3 +168,8 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form: ProfileForm) -> HttpResponse:
         messages.success(self.request, "Профиль сохранён.")
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["faq_items"] = FAQ_ITEMS
+        return context
