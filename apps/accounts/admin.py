@@ -54,6 +54,7 @@ class UserAdmin(DjangoUserAdmin):
                     "patronymic",
                     "birth_date",
                     "phone",
+                    "address",
                 )
             },
         ),
@@ -62,6 +63,7 @@ class UserAdmin(DjangoUserAdmin):
             {
                 "fields": (
                     "personal_data_consent",
+                    "marketing_consent",
                     "email_confirmed",
                     "notify_promo_registered",
                 )
