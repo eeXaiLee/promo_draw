@@ -51,6 +51,29 @@ def test_finalize_draw_picks_winners_from_redeemed_codes(
     assert len(winner_user_ids) == 2
 
 
+def test_finalize_draw_never_picks_the_same_user_twice(
+    two_prizes: list[Prize],
+) -> None:
+    """Больше билетов — выше шанс выиграть, но не два приза одному
+    человеку: с 2 призами и 2 участниками оба обязаны получить приз,
+    даже если один из них держит почти все билеты."""
+    heavy_user = User.objects.create_user(
+        email="heavy@example.com", password="x"
+    )
+    other_user = User.objects.create_user(
+        email="other@example.com", password="x"
+    )
+    draw = _monthly_draw(DRAW_DATE)
+    for i in range(5):
+        _redeem(heavy_user, f"HEAVY00{i}", DRAW_DATE)
+    _redeem(other_user, "OTHER001", DRAW_DATE)
+
+    winners = finalize_draw(draw)
+
+    assert len(winners) == 2
+    assert {w.user_id for w in winners} == {heavy_user.pk, other_user.pk}
+
+
 def test_finalize_draw_counts_codes_across_whole_period(
     two_prizes: list[Prize],
 ) -> None:
