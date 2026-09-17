@@ -63,9 +63,14 @@ class MonthlyDrawAdmin(admin.ModelAdmin):
 
 @admin.register(Winner)
 class WinnerAdmin(admin.ModelAdmin):
+    """Победители — доступны только для чтения, в т.ч. после удаления
+    аккаунта: ФИО/email/телефон сняты снимком на момент выигрыша, поэтому
+    не пропадают вместе с User."""
+
     list_display = (
         "draw",
         "prize",
+        "winner_full_name",
         "user",
         "kind",
         "determined_manually",
@@ -74,11 +79,14 @@ class WinnerAdmin(admin.ModelAdmin):
         "email_sent_at",
     )
     list_filter = ("kind", "determined_manually")
-    search_fields = ("user__email", "prize__title")
+    search_fields = ("winner_full_name", "winner_email", "prize__title")
     readonly_fields = (
         "draw",
         "prize",
         "user",
+        "winner_full_name",
+        "winner_email",
+        "winner_phone",
         "kind",
         "promo_code",
         "determined_manually",

@@ -72,8 +72,24 @@ class Winner(models.Model):
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name="giveaway_wins",
+    )
+    winner_full_name = models.CharField(
+        max_length=300,
+        blank=True,
+        default="",
+        verbose_name="ФИО на момент выигрыша",
+    )
+    winner_email = models.EmailField(
+        blank=True, default="", verbose_name="email на момент выигрыша"
+    )
+    winner_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        default="",
+        verbose_name="телефон на момент выигрыша",
     )
     kind = models.CharField(max_length=10, choices=DrawKind.choices)
     promo_code = models.ForeignKey(
@@ -105,4 +121,4 @@ class Winner(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.user_id} — {self.prize} ({self.draw})"
+        return f"{self.winner_full_name} — {self.prize} ({self.draw})"

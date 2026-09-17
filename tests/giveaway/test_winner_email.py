@@ -22,6 +22,9 @@ def _create_winner(
         draw=draw,
         prize=prize,
         user=user,
+        winner_full_name=user.get_full_name(),
+        winner_email=user.email,
+        winner_phone=user.phone,
         kind=DrawKind.MONTHLY,
         promo_code=promo_code,
     )

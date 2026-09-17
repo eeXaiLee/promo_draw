@@ -67,7 +67,7 @@ def finalize_super_draw() -> None:
 def send_winner_email(winner_id: int) -> None:
     """Письмо победителю — обязательное, без возможности отключить."""
     try:
-        winner = Winner.objects.select_related("user", "prize", "draw").get(
+        winner = Winner.objects.select_related("prize", "draw").get(
             pk=winner_id
         )
     except Winner.DoesNotExist:
@@ -88,7 +88,7 @@ def send_winner_email(winner_id: int) -> None:
         subject="Вы выиграли приз от Эскимос!",
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[winner.user.email],
+        recipient_list=[winner.winner_email],
     )
     winner.email_sent_at = timezone.now()
     winner.save(update_fields=["email_sent_at"])

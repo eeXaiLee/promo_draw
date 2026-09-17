@@ -215,3 +215,48 @@ def test_finalize_draw_super_includes_previous_monthly_winners(
     winners = finalize_draw(super_draw)
 
     assert {w.user_id for w in winners} == {monthly_winner.pk}
+
+
+def test_finalize_draw_snapshots_winner_contact_details(
+    two_prizes: list[Prize],
+) -> None:
+    """При определении победителя ФИО/email/телефон сохраняются отдельно
+    от аккаунта — это нужно, чтобы их не потерять при удалении User."""
+    draw = _monthly_draw(DRAW_DATE)
+    user = User.objects.create_user(
+        email="snapshot@example.com",
+        password="x",
+        first_name="Иван",
+        last_name="Иванов",
+        phone="+79991234567",
+    )
+    _redeem(user, "SNAP0001", DRAW_DATE)
+
+    winners = finalize_draw(draw)
+
+    assert len(winners) == 1
+    winner = winners[0]
+    assert winner.winner_full_name == "Иванов Иван"
+    assert winner.winner_email == "snapshot@example.com"
+    assert winner.winner_phone == "+79991234567"
+
+
+def test_deleting_winner_user_keeps_the_winner_record(
+    two_prizes: list[Prize],
+) -> None:
+    """Удаление аккаунта победителя не стирает запись о призе — она
+    финансовый документ акции и должна пережить удаление User."""
+    draw = _monthly_draw(DRAW_DATE)
+    user = User.objects.create_user(
+        email="deleted@example.com", password="x", first_name="Пётр"
+    )
+    _redeem(user, "DEL00001", DRAW_DATE)
+    winners = finalize_draw(draw)
+    winner_id = winners[0].pk
+
+    user.delete()
+
+    winner = Winner.objects.get(pk=winner_id)
+    assert winner.user_id is None
+    assert winner.winner_full_name == "Пётр"
+    assert winner.winner_email == "deleted@example.com"

@@ -69,7 +69,9 @@ def finalize_draw(
                 used_by__isnull=False,
                 used_at__gte=period_start,
                 used_at__lt=period_end,
-            ).exclude(used_by__giveaway_wins__kind=draw.kind)
+            )
+            .exclude(used_by__giveaway_wins__kind=draw.kind)
+            .select_related("used_by")
         )
         secrets.SystemRandom().shuffle(tickets)
 
@@ -82,16 +84,19 @@ def finalize_draw(
         for promo_code in tickets:
             if len(winners) >= max_winners:
                 break
-            user_id = promo_code.used_by_id
-            assert user_id is not None
-            if user_id in seen_users:
+            winner_user = promo_code.used_by
+            assert winner_user is not None
+            if winner_user.pk in seen_users:
                 continue
-            seen_users.add(user_id)
+            seen_users.add(winner_user.pk)
             winners.append(
                 Winner.objects.create(
                     draw=draw,
                     prize=prizes[len(winners)],
-                    user_id=user_id,
+                    user=winner_user,
+                    winner_full_name=winner_user.get_full_name(),
+                    winner_email=winner_user.email,
+                    winner_phone=winner_user.phone,
                     kind=draw.kind,
                     promo_code=promo_code,
                     determined_manually=determined_by is not None,
