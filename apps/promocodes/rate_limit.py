@@ -30,6 +30,12 @@ def register_failed_attempt(user_id: int) -> None:
         )
 
 
+def clear_failed_attempts(user_id: int) -> None:
+    """Сбрасывает счётчик неудач после успешного погашения кода."""
+    cache.delete(_fails_key(user_id))
+    cache.delete(_ban_key(user_id))
+
+
 def get_ban_message(user_id: int) -> str | None:
     """Текст ошибки, если пользователь сейчас забанен, иначе None."""
     ban_until = cache.get(_ban_key(user_id))

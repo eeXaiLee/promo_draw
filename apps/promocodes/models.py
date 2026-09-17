@@ -47,6 +47,7 @@ class PromoRedemptionAttempt(models.Model):
     class FailureReason(models.TextChoices):
         NOT_FOUND = "not_found", "Код не найден"
         ALREADY_USED = "already_used", "Код уже использован"
+        OWN_CODE_REPEATED = "own_code_repeated", "Свой же код введён повторно"
         BANNED = "banned", "Временная блокировка"
         PROFILE_INCOMPLETE = "profile_incomplete", "Не заполнен профиль"
         EMAIL_NOT_CONFIRMED = "email_not_confirmed", "Почта не подтверждена"

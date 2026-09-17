@@ -137,3 +137,40 @@ def test_redeem_code_bans_after_three_failed_attempts(
 
     assert not result.success
     assert result.failure_reason == "banned"
+
+
+def test_redeem_code_own_code_repeated_does_not_count_toward_ban(
+    complete_user: User,
+) -> None:
+    """Повторный ввод СВОЕГО уже погашенного кода — не неудача: он не
+    должен приближать к бану, а сообщение должно отличаться от чужого
+    «уже использован»."""
+    PromoCode.objects.create(code="HHHH8888")
+    first = redeem_code(complete_user, "HHHH8888")
+    assert first.success
+
+    for _ in range(5):
+        result = redeem_code(complete_user, "HHHH8888")
+        assert not result.success
+        assert result.failure_reason == "own_code_repeated"
+        assert result.message != "Этот промокод уже был использован."
+
+
+def test_redeem_code_success_resets_fail_counter(
+    complete_user: User,
+) -> None:
+    """Сценарий из ревью: 2 неудачи, успех, ещё 1 неудача — бана быть не
+    должно, счётчик обнуляется после успешного погашения."""
+    PromoCode.objects.create(code="IIII9999")
+
+    for _ in range(2):
+        result = redeem_code(complete_user, "NOPE0001")
+        assert result.failure_reason == "not_found"
+
+    success = redeem_code(complete_user, "IIII9999")
+    assert success.success
+
+    result = redeem_code(complete_user, "NOPE0002")
+
+    assert not result.success
+    assert result.failure_reason == "not_found"

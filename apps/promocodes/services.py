@@ -14,7 +14,11 @@ from apps.giveaway import promo_period
 from promo_draw.celery import safe_delay
 
 from .models import PromoCode, PromoRedemptionAttempt, code_validator
-from .rate_limit import get_ban_message, register_failed_attempt
+from .rate_limit import (
+    clear_failed_attempts,
+    get_ban_message,
+    register_failed_attempt,
+)
 from .tasks import send_promo_registered_email
 
 FailureReason = PromoRedemptionAttempt.FailureReason
@@ -31,6 +35,9 @@ FAILURE_MESSAGES: dict[str, str] = {
         "Такой промокод не найден. Проверьте, что ввели его без ошибок."
     ),
     FailureReason.ALREADY_USED: "Этот промокод уже был использован.",
+    FailureReason.OWN_CODE_REPEATED: (
+        "Вы уже вводили этот промокод — он учтён, вводить его снова не нужно."
+    ),
     FailureReason.CAMPAIGN_NOT_STARTED: (
         "Акция ещё не началась — загляните позже."
     ),
@@ -89,6 +96,13 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
             return _fail(user, code_input, FailureReason.NOT_FOUND)
 
         if promo_code.used_by_id is not None:
+            if promo_code.used_by_id == user.pk:
+                return _fail(
+                    user,
+                    code_input,
+                    FailureReason.OWN_CODE_REPEATED,
+                    promo_code,
+                )
             register_failed_attempt(user.pk)
             return _fail(
                 user, code_input, FailureReason.ALREADY_USED, promo_code
@@ -101,6 +115,7 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
             user=user, code_input=code_input, success=True
         )
 
+    clear_failed_attempts(user.pk)
     safe_delay(send_promo_registered_email, promo_code.pk)
 
     return RedemptionResult(
