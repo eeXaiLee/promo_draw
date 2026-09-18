@@ -15,7 +15,9 @@ from .services import import_promo_codes_from_xlsx
 class PromoCodeAdmin(admin.ModelAdmin):
     list_display = ("code", "used_by", "used_at", "created_at")
     list_filter = ("used_at",)
-    search_fields = ("code", "used_by__email")
+    search_fields = ("=code", "used_by__email")
+    list_select_related = ("used_by",)
+    show_full_result_count = False
     readonly_fields = ("used_by", "used_at", "created_at")
     change_list_template = "admin/promocodes/promocode/change_list.html"
 
