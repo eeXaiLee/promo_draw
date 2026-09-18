@@ -12,7 +12,14 @@ from django.core.management.base import (
 
 from apps.promocodes.models import PROMO_CODE_LENGTH, PromoCode
 
-ALPHABET = string.ascii_uppercase + string.digits
+AMBIGUOUS_CHARS = "OIS015"
+"""Пары, которые легко перепутать при переписывании с палочки: O/0, I/1, S/5."""
+
+ALPHABET = "".join(
+    c
+    for c in string.ascii_uppercase + string.digits
+    if c not in AMBIGUOUS_CHARS
+)
 BATCH_SIZE = 10_000
 MAX_EMPTY_BATCHES = 5
 
