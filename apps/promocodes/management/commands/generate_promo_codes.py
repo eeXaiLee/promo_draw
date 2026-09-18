@@ -43,12 +43,17 @@ class Command(BaseCommand):
             batch_size = min(BATCH_SIZE, target - created)
             codes = {generate_code() for _ in range(batch_size)}
 
-            before = PromoCode.objects.count()
+            existing = set(
+                PromoCode.objects.filter(code__in=codes).values_list(
+                    "code", flat=True
+                )
+            )
+            new_codes = codes - existing
             PromoCode.objects.bulk_create(
-                [PromoCode(code=code) for code in codes],
+                [PromoCode(code=code) for code in new_codes],
                 ignore_conflicts=True,
             )
-            added = PromoCode.objects.count() - before
+            added = len(new_codes)
             created += added
 
             if added > 0:
