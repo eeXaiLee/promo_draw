@@ -159,7 +159,8 @@ def _import_batch(batch: list[str], seen: set[str]) -> tuple[int, int]:
     PromoCode.objects.bulk_create(
         [PromoCode(code=code) for code in new_codes], ignore_conflicts=True
     )
-    return len(new_codes), rejected_duplicate
+    actually_added = PromoCode.objects.filter(code__in=new_codes).count()
+    return actually_added, rejected_duplicate
 
 
 def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
@@ -183,6 +184,7 @@ def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
     rejected_duplicate = 0
     seen: set[str] = set()
     batch: list[str] = []
+    first_row = True
 
     for row in sheet.iter_rows(values_only=True):
         if not row or row[0] is None:
@@ -190,11 +192,20 @@ def import_promo_codes_from_xlsx(file: UploadedFile) -> ImportResult:
         value = str(row[0]).strip().upper()
         if not value:
             continue
-        total_rows += 1
 
+        is_valid_format = True
         try:
             code_validator(value)
         except ValidationError:
+            is_valid_format = False
+
+        if first_row:
+            first_row = False
+            if not is_valid_format:
+                continue
+
+        total_rows += 1
+        if not is_valid_format:
             rejected_invalid_format += 1
             continue
 
