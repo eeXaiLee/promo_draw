@@ -118,6 +118,19 @@ def finalize_draw(
         draw.is_finalized = True
         draw.save(update_fields=["is_finalized"])
 
+    participant_count = len({user_id for _, user_id in tickets})
+    winner_names = ", ".join(w.winner_full_name for w in winners) or "никого"
+    logger.info(
+        "Розыгрыш %s завершён: билетов %d, участников %d, победителей "
+        "%d (%s), призов не разыграно %d",
+        draw,
+        len(tickets),
+        participant_count,
+        len(winners),
+        winner_names,
+        len(prizes) - len(winners),
+    )
+
     if len(winners) < draw.prize_count:
         if len(prizes) < draw.prize_count:
             cause = (

@@ -51,6 +51,29 @@ def test_finalize_draw_picks_winners_from_redeemed_codes(
     assert len(winner_user_ids) == 2
 
 
+def test_finalize_draw_logs_a_summary(
+    two_prizes: list[Prize], caplog: pytest.LogCaptureFixture
+) -> None:
+    """Каждый розыгрыш оставляет след в логе — билеты, участники,
+    победители, — иначе через полгода нечем ответить на вопрос
+    «почему в марте был один победитель»."""
+    draw = _monthly_draw(DRAW_DATE)
+    users = [
+        User.objects.create_user(email=f"u{i}@example.com", password="x")
+        for i in range(3)
+    ]
+    for i, user in enumerate(users):
+        _redeem(user, f"CODE000{i}", DRAW_DATE)
+
+    with caplog.at_level(logging.INFO, logger="apps.giveaway.services"):
+        finalize_draw(draw)
+
+    message = caplog.records[0].getMessage()
+    assert "билетов 3" in message
+    assert "участников 3" in message
+    assert "победителей 2" in message
+
+
 def test_finalize_draw_never_picks_the_same_user_twice(
     two_prizes: list[Prize],
 ) -> None:
