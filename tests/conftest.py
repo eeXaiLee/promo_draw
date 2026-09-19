@@ -68,7 +68,8 @@ def profile_form_data() -> dict[str, object]:
 
 @pytest.fixture
 def two_prizes(db) -> list[Prize]:
-    """Два активных приза — под `DRAW_PRIZE_COUNT` из giveaway."""
+    """Два активных приза — под дефолтный `prize_count=2` месячного
+    розыгрыша."""
     return [
         Prize.objects.create(title="Сертификат"),
         Prize.objects.create(title="Наушники"),

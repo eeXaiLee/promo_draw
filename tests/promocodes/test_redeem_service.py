@@ -94,6 +94,34 @@ def test_redeem_code_after_campaign_end(complete_user: User) -> None:
     assert result.failure_reason == "campaign_ended"
 
 
+def test_redeem_code_exactly_at_campaign_start(complete_user: User) -> None:
+    """Самый первый момент акции (09.02, 00:00 МСК) — код уже гасится,
+    граница включительная, а не «строго после»."""
+    PromoCode.objects.create(code="START001")
+    campaign_start = datetime.datetime(2026, 2, 9, 0, 0, tzinfo=MOSCOW_TZ)
+
+    with patch(
+        "apps.promocodes.services.timezone.now", return_value=campaign_start
+    ):
+        result = redeem_code(complete_user, "START001")
+
+    assert result.success
+
+
+def test_redeem_code_exactly_at_campaign_end(complete_user: User) -> None:
+    """Самый последний момент акции (31.12, 23:59:59 МСК) — код ещё
+    гасится, граница включительная, а не «строго до»."""
+    PromoCode.objects.create(code="END00001")
+    campaign_end = datetime.datetime(2026, 12, 31, 23, 59, 59, tzinfo=MOSCOW_TZ)
+
+    with patch(
+        "apps.promocodes.services.timezone.now", return_value=campaign_end
+    ):
+        result = redeem_code(complete_user, "END00001")
+
+    assert result.success
+
+
 def test_redeem_code_during_draw_transition_window(complete_user: User) -> None:
     """С момента розыгрыша (21:00 9-го числа) до полуночи код не гасится."""
     PromoCode.objects.create(code="FFFF6666")
