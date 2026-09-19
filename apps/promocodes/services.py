@@ -75,8 +75,10 @@ def redeem_code(user: User, code_input: str) -> RedemptionResult:
 
     ban_message = get_ban_message(user.pk)
     if ban_message is not None:
-        return _fail(
-            user, code_input, FailureReason.BANNED, message=ban_message
+        return RedemptionResult(
+            success=False,
+            message=ban_message,
+            failure_reason=FailureReason.BANNED,
         )
 
     if not user.email_confirmed:
@@ -234,7 +236,6 @@ def _fail(
     code_input: str,
     reason: FailureReason,
     promo_code: PromoCode | None = None,
-    message: str | None = None,
 ) -> RedemptionResult:
     PromoRedemptionAttempt.objects.create(
         user=user,
@@ -244,7 +245,7 @@ def _fail(
     )
     return RedemptionResult(
         success=False,
-        message=message or FAILURE_MESSAGES[reason],
+        message=FAILURE_MESSAGES[reason],
         failure_reason=reason,
         promo_code=promo_code,
     )

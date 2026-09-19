@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 from django.utils import timezone
 
 from apps.accounts.models import User
-from apps.promocodes.models import PromoCode
+from apps.promocodes.models import PromoCode, PromoRedemptionAttempt
 from apps.promocodes.services import redeem_code
 
 MOSCOW_TZ = ZoneInfo("Europe/Moscow")
@@ -137,6 +137,21 @@ def test_redeem_code_bans_after_three_failed_attempts(
 
     assert not result.success
     assert result.failure_reason == "banned"
+
+
+def test_redeem_code_repeated_attempts_while_banned_dont_spam_the_log(
+    complete_user: User,
+) -> None:
+    """Пока бан действует, повторные попытки не плодят строки в журнале —
+    причина бана и так уже записана теми тремя неудачами, что её вызвали."""
+    for _ in range(3):
+        redeem_code(complete_user, "NOPE0000")
+    attempts_at_ban_start = PromoRedemptionAttempt.objects.count()
+
+    for _ in range(50):
+        redeem_code(complete_user, "NOPE0000")
+
+    assert PromoRedemptionAttempt.objects.count() == attempts_at_ban_start
 
 
 def test_redeem_code_own_code_repeated_does_not_count_toward_ban(
