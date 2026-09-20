@@ -302,6 +302,23 @@ ruff, mypy и pytest, затем собирает Docker-образ. При пу
 nginx. Если миграция упадёт — деплой останавливается раньше, чем боевой
 контейнер переключится на новый код.
 
+## Резервные копии базы
+
+`scripts/backup_db.sh` делает `pg_dump` через `docker compose exec` в
+`./backups/` (gzip, имя с датой и временем), старые дампы старше 14 дней
+удаляются автоматически. Каталог `backups/` не в git.
+
+На сервере запускается по cron из корня проекта, раз в сутки:
+
+```cron
+0 3 * * * cd /opt/promo_draw && ./scripts/backup_db.sh >> /var/log/promo_draw_backup.log 2>&1
+```
+
+Восстановление — `gunzip -c backups/<файл>.sql.gz | docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"`.
+
+Это защищает от испорченной миграции, случайного удаления и багов в коде —
+не от потери самого диска сервера (бэкап лежит на нём же).
+
 ## Сайт проекта
 
 - Домен: https://promo-draw.duckdns.org
