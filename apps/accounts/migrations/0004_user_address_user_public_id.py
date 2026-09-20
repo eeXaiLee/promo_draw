@@ -2,7 +2,10 @@
 
 from django.db import migrations, models
 
-from apps.accounts.models import PUBLIC_ID_OFFSET
+# Значение продублировано из apps.accounts.models.PUBLIC_ID_OFFSET —
+# миграции не должны зависеть от живого кода приложения, иначе накат
+# с нуля сломается, если константу когда-нибудь переименуют или уберут.
+PUBLIC_ID_OFFSET = 483_916_207
 
 
 def backfill_public_id(apps, schema_editor):

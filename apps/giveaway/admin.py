@@ -77,6 +77,7 @@ class WinnerAdmin(admin.ModelAdmin):
         "determined_by",
         "created_at",
         "email_sent_at",
+        "email_send_attempts",
     )
     list_filter = ("kind", "determined_manually")
     search_fields = ("winner_full_name", "winner_email", "prize__title")
@@ -93,4 +94,5 @@ class WinnerAdmin(admin.ModelAdmin):
         "determined_by",
         "created_at",
         "email_sent_at",
+        "email_send_attempts",
     )
