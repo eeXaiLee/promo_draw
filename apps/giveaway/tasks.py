@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import datetime
+
 from celery import shared_task
 from django.conf import settings
 from django.core.mail import send_mail
@@ -40,12 +42,17 @@ def finalize_monthly_draw() -> None:
 def catch_up_monthly_draws() -> None:
     """Подстраховка на случай простоя ровно в момент розыгрыша.
 
-    Раз в 30 минут проверяет все периоды акции, чей день розыгрыша уже
-    наступил, и дозакрывает те, что почему-то остались не финализированы.
+    Раз в 30 минут проверяет все периоды акции, чей момент розыгрыша
+    (21:00 МСК дня, которым заканчивается период) уже наступил, и
+    дозакрывает те, что остались не финализированы.
     """
-    today_msk = timezone.now().astimezone(MOSCOW_TZ).date()
+    now = timezone.now()
+    today_msk = now.astimezone(MOSCOW_TZ).date()
     for period_start, period_end in promo_period.monthly_periods():
-        if period_end > today_msk:
+        draw_moment = datetime.datetime.combine(
+            period_end, datetime.time(promo_period.DRAW_HOUR, 0), MOSCOW_TZ
+        )
+        if now < draw_moment:
             continue
         draw = get_or_create_monthly_draw_for_period(period_start, period_end)
         if not draw.is_finalized:
