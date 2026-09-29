@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from apps.accounts.models import User
 from apps.promocodes.models import PromoCode
+from promo_draw.views import FAQ_ITEMS
 
 MOSCOW_TZ = ZoneInfo("Europe/Moscow")
 
@@ -54,6 +55,20 @@ def test_dashboard_shows_redemption_date_in_moscow_time(
 
     assert "10.03.2026" in content
     assert "09.03.2026" not in content
+
+
+def test_dashboard_renders_faq_from_shared_data(
+    client: Client, complete_user: User
+) -> None:
+    """Кабинет берёт вопросы из общего FAQ_ITEMS — тот же источник, что
+    и главная, чтобы текст не расходился между страницами."""
+    client.force_login(complete_user)
+
+    response = client.get(reverse("accounts:dashboard"))
+    content = response.content.decode()
+
+    assert "Остались вопросы?" in content
+    assert FAQ_ITEMS[0]["question"] in content
 
 
 def test_dashboard_rejects_unknown_code(

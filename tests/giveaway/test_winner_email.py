@@ -7,7 +7,11 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.giveaway.models import DrawKind, MonthlyDraw, Prize, Winner
-from apps.giveaway.tasks import resend_pending_winner_emails, send_winner_email
+from apps.giveaway.tasks import (
+    MAX_RESEND_ATTEMPTS,
+    resend_pending_winner_emails,
+    send_winner_email,
+)
 from apps.promocodes.models import PromoCode
 
 
@@ -74,3 +78,24 @@ def test_resend_pending_winner_emails_skips_already_sent(
     assert pending.email_sent_at is not None
     assert len(mail.outbox) == 1
     assert mail.outbox[0].to == [pending_user.email]
+
+
+def test_resend_pending_winner_emails_stops_after_max_attempts(
+    two_prizes: list[Prize],
+) -> None:
+    """После MAX_RESEND_ATTEMPTS попыток досылка перестаёт трогать
+    победителя — битый адрес чинить руками, а не долбить бесконечно."""
+    draw_date = datetime.date(2030, 2, 1)
+    draw = MonthlyDraw.objects.create(
+        period_start=draw_date, period_end=draw_date
+    )
+    user = User.objects.create_user(
+        email="broken@example.com", password="testpass123"
+    )
+    winner = _create_winner(user, two_prizes[0], draw, "WINR0004")
+    winner.email_send_attempts = MAX_RESEND_ATTEMPTS
+    winner.save(update_fields=["email_send_attempts"])
+
+    resend_pending_winner_emails()
+
+    assert len(mail.outbox) == 0

@@ -12,7 +12,14 @@ from django.core.management.base import (
 
 from apps.promocodes.models import PROMO_CODE_LENGTH, PromoCode
 
-ALPHABET = string.ascii_uppercase + string.digits
+AMBIGUOUS_CHARS = "OIS015"
+"""Пары, которые легко перепутать при переписывании с палочки: O/0, I/1, S/5."""
+
+ALPHABET = "".join(
+    c
+    for c in string.ascii_uppercase + string.digits
+    if c not in AMBIGUOUS_CHARS
+)
 BATCH_SIZE = 10_000
 MAX_EMPTY_BATCHES = 5
 
@@ -43,12 +50,17 @@ class Command(BaseCommand):
             batch_size = min(BATCH_SIZE, target - created)
             codes = {generate_code() for _ in range(batch_size)}
 
-            before = PromoCode.objects.count()
+            existing = set(
+                PromoCode.objects.filter(code__in=codes).values_list(
+                    "code", flat=True
+                )
+            )
+            new_codes = codes - existing
             PromoCode.objects.bulk_create(
-                [PromoCode(code=code) for code in codes],
+                [PromoCode(code=code) for code in new_codes],
                 ignore_conflicts=True,
             )
-            added = PromoCode.objects.count() - before
+            added = len(new_codes)
             created += added
 
             if added > 0:

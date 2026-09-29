@@ -67,6 +67,22 @@ def test_import_dedupes_across_batch_boundary(db, monkeypatch) -> None:
     assert PromoCode.objects.filter(code="AAAA1111").count() == 1
 
 
+def test_import_skips_header_row_silently(db) -> None:
+    """Первая строка, не похожая на код («Код», «Промокоды» и т.п.), —
+    это разметка таблицы, а не мусорные данные. Не должна попадать ни в
+    total_rows, ни в rejected_invalid_format."""
+    content = _build_xlsx(["Код", "AAAA1111", "BBBB2222"])
+    upload = SimpleUploadedFile(
+        "codes.xlsx", content, content_type=XLSX_CONTENT_TYPE
+    )
+
+    result = import_promo_codes_from_xlsx(upload)
+
+    assert result.total_rows == 2
+    assert result.rejected_invalid_format == 0
+    assert result.added == 2
+
+
 def test_import_raises_validation_error_for_unreadable_file(db) -> None:
     """Файл, который не открывается как xlsx, не роняет импорт исключением
     openpyxl, а даёт понятную ValidationError."""

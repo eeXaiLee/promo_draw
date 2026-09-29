@@ -64,6 +64,9 @@ def finalize_draw(
         period_start, period_end = moscow_period_bounds(
             draw.period_start, draw.period_end
         )
+        # Только id, не целые объекты — на супер-розыгрыше тут могут быть
+        # сотни тысяч билетов за весь срок акции, а полные PromoCode с
+        # select_related("used_by") на таком объёме кладут воркер по памяти.
         tickets = list(
             PromoCode.objects.filter(
                 used_by__isnull=False,
@@ -71,7 +74,7 @@ def finalize_draw(
                 used_at__lt=period_end,
             )
             .exclude(used_by__giveaway_wins__kind=draw.kind)
-            .select_related("used_by")
+            .values_list("pk", "used_by_id")
         )
         secrets.SystemRandom().shuffle(tickets)
 
@@ -80,25 +83,33 @@ def finalize_draw(
 
         max_winners = min(draw.prize_count, len(prizes))
         seen_users: set[int] = set()
-        winners: list[Winner] = []
-        for promo_code in tickets:
-            if len(winners) >= max_winners:
+        picked: list[tuple[int, int]] = []
+        for promo_code_id, user_id in tickets:
+            if len(picked) >= max_winners:
                 break
-            winner_user = promo_code.used_by
-            assert winner_user is not None
-            if winner_user.pk in seen_users:
+            if user_id in seen_users:
                 continue
-            seen_users.add(winner_user.pk)
+            seen_users.add(user_id)
+            picked.append((promo_code_id, user_id))
+
+        promo_codes_by_id = PromoCode.objects.in_bulk(
+            [promo_code_id for promo_code_id, _ in picked]
+        )
+        users_by_id = User.objects.in_bulk([user_id for _, user_id in picked])
+
+        winners: list[Winner] = []
+        for index, (promo_code_id, user_id) in enumerate(picked):
+            winner_user = users_by_id[user_id]
             winners.append(
                 Winner.objects.create(
                     draw=draw,
-                    prize=prizes[len(winners)],
+                    prize=prizes[index],
                     user=winner_user,
                     winner_full_name=winner_user.get_full_name(),
                     winner_email=winner_user.email,
                     winner_phone=winner_user.phone,
                     kind=draw.kind,
-                    promo_code=promo_code,
+                    promo_code=promo_codes_by_id[promo_code_id],
                     determined_manually=determined_by is not None,
                     determined_by=determined_by,
                 )
@@ -106,6 +117,19 @@ def finalize_draw(
 
         draw.is_finalized = True
         draw.save(update_fields=["is_finalized"])
+
+    participant_count = len({user_id for _, user_id in tickets})
+    winner_names = ", ".join(w.winner_full_name for w in winners) or "никого"
+    logger.info(
+        "Розыгрыш %s завершён: билетов %d, участников %d, победителей "
+        "%d (%s), призов не разыграно %d",
+        draw,
+        len(tickets),
+        participant_count,
+        len(winners),
+        winner_names,
+        len(prizes) - len(winners),
+    )
 
     if len(winners) < draw.prize_count:
         if len(prizes) < draw.prize_count:

@@ -107,6 +107,9 @@ class Winner(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     email_sent_at = models.DateTimeField(null=True, blank=True)
+    email_send_attempts = models.PositiveSmallIntegerField(
+        default=0, verbose_name="попыток отправки письма"
+    )
 
     class Meta:
         verbose_name = "победитель"

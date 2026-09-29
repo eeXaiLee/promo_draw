@@ -1,0 +1,17 @@
+<section class="{{ faq_prefix }}-section">
+  <h2 class="{{ faq_prefix }}-title">{{ faq_heading }}</h2>
+  <div class="{{ faq_prefix }}-list">
+    {% for item in faq_items %}
+      <details class="{{ faq_prefix }}-item">
+        <summary class="{{ faq_prefix }}-question">
+          {{ item.question }}
+          <svg class="{{ faq_prefix }}-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M4 7.5L10 13L16 7.5" stroke="#2E4452" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <hr class="{{ faq_prefix }}-divider">
+        <p class="{{ faq_prefix }}-answer">{{ item.answer }}</p>
+      </details>
+    {% endfor %}
+  </div>
+</section>

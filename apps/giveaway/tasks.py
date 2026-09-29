@@ -3,6 +3,7 @@ from __future__ import annotations
 from celery import shared_task
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db.models import F
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
@@ -94,9 +95,23 @@ def send_winner_email(winner_id: int) -> None:
     winner.save(update_fields=["email_sent_at"])
 
 
+MAX_RESEND_ATTEMPTS = 5
+
+
 @shared_task
 def resend_pending_winner_emails() -> None:
-    """Досылает письма победителям, которым оно ещё не ушло."""
-    pending_ids = Winner.objects.filter(email_sent_at__isnull=True)
-    for winner_id in pending_ids.values_list("pk", flat=True):
+    """Досылает письма победителям, которым оно ещё не ушло.
+
+    После MAX_RESEND_ATTEMPTS попыток перестаёт досылать сама — битый
+    адрес не починится повторными попытками, а таких победителей нужно
+    видно в админке, чтобы связаться вручную.
+    """
+    pending_ids = Winner.objects.filter(
+        email_sent_at__isnull=True,
+        email_send_attempts__lt=MAX_RESEND_ATTEMPTS,
+    ).values_list("pk", flat=True)
+    for winner_id in pending_ids:
+        Winner.objects.filter(pk=winner_id).update(
+            email_send_attempts=F("email_send_attempts") + 1
+        )
         send_winner_email.delay(winner_id)

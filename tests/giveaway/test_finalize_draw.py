@@ -51,6 +51,52 @@ def test_finalize_draw_picks_winners_from_redeemed_codes(
     assert len(winner_user_ids) == 2
 
 
+def test_finalize_draw_logs_a_summary(
+    two_prizes: list[Prize], caplog: pytest.LogCaptureFixture
+) -> None:
+    """Каждый розыгрыш оставляет след в логе — билеты, участники,
+    победители, — иначе через полгода нечем ответить на вопрос
+    «почему в марте был один победитель»."""
+    draw = _monthly_draw(DRAW_DATE)
+    users = [
+        User.objects.create_user(email=f"u{i}@example.com", password="x")
+        for i in range(3)
+    ]
+    for i, user in enumerate(users):
+        _redeem(user, f"CODE000{i}", DRAW_DATE)
+
+    with caplog.at_level(logging.INFO, logger="apps.giveaway.services"):
+        finalize_draw(draw)
+
+    message = caplog.records[0].getMessage()
+    assert "билетов 3" in message
+    assert "участников 3" in message
+    assert "победителей 2" in message
+
+
+def test_finalize_draw_never_picks_the_same_user_twice(
+    two_prizes: list[Prize],
+) -> None:
+    """Больше билетов — выше шанс выиграть, но не два приза одному
+    человеку: с 2 призами и 2 участниками оба обязаны получить приз,
+    даже если один из них держит почти все билеты."""
+    heavy_user = User.objects.create_user(
+        email="heavy@example.com", password="x"
+    )
+    other_user = User.objects.create_user(
+        email="other@example.com", password="x"
+    )
+    draw = _monthly_draw(DRAW_DATE)
+    for i in range(5):
+        _redeem(heavy_user, f"HEAVY00{i}", DRAW_DATE)
+    _redeem(other_user, "OTHER001", DRAW_DATE)
+
+    winners = finalize_draw(draw)
+
+    assert len(winners) == 2
+    assert {w.user_id for w in winners} == {heavy_user.pk, other_user.pk}
+
+
 def test_finalize_draw_counts_codes_across_whole_period(
     two_prizes: list[Prize],
 ) -> None:
